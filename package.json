@@ -1,0 +1,19 @@
+{
+  "name": "discordjs-template",
+  "version": "1.0.0",
+  "description": "An easy to understand template for a discord.js discord bot",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KingOKarma/discordjs-template.git"
+  },
+  "author": "KingOKarma",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KingOKarma/discordjs-template/issues"
+  },
+  "homepage": "https://github.com/KingOKarma/discordjs-template#readme"
+}
