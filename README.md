@@ -1,47 +1,32 @@
-# discordjs-template
+# typescript discord bot
+This is a template for anyone who wants to use a discord bot in typescript
 
-## How to use
+---
 
-```
-$ git clone https://github.com/KingOKarma/discordjs-template
-$ npm init
-Go through accordingly (if you dont know what  to put just press enter)
-$ npm install discord.js
-```
-- Once the terminal cmds have been ran make sure to add your token and prefix into `src/config.json`
-- Take a read through the comments to understand how it works
+```Setup```
 
-Once you're all set just run
-```
-$ cd src
-to make sure you're in your src folder
-then
-$ node .
-to run index.js
-```
+- rename `example.config.yml` to `config.yml` and add necessary data
+- run script `npm start`
+- Get cool bot
 
-### If you are running on a server/VPS
-- you can use pm2
-```
-enter your src folder
-$ pm2 start index.js --name <what-ever-you-want>
-to check logs you can do 
-$ pm2 logs <name>
-```
+---
 
-### Extra info
-- This same template was used to start off [KFC Bucket Boy](https://github.com/KingOKarma/KFCBoy)
+```Commands```
 
-- If you want to add new commands, follow the template used in `src/commands/fun/kek.js`
+- `c.pong` (PONG)
+- `c.say` (Say what you want! the bot will)
+- `c.userinfo` (get some info on a user)
 
-- You can sort your modules by making different folders in `src/commands`
+---
 
-- From here you can expand your bot
+```Notes```
+- All notes are provided to help not spoonfeed
+- If you want to add a new value to the `config.yml` make sure to add it to `config.ts` too
+- Adding new commands is pretty easy just add a new file and copy the template, easy right?
+- ESlint has been added in here for extra help to help you style your code to be better (you can press `ctrl + shift + p` then click `ESlint: Fix all auto-fixable Problems` for some quick savers)
+---
 
-- When making asynchronous cmds you can follow the template in `src/commands/testing/ping.js`
-
-
-### Enjoy
-- Make sure to also check out https://bucketbot.dev
-
-
+###### Help support my personal bot! written in typescript too!
+- [Support Server](https://support.bucketbot.dev)
+- [Invite](https://invite.bucketbot.dev)
+- [Github](https://github.com/KingOKarma/KFCBoy)

@@ -1,0 +1,8 @@
+token: 'BOT_TOKEN'
+prefix: 'PREFIX'
+allowedRoles: 
+  -'ROLES_ID(S)'
+deniedRoles:
+  -'ROLES_ID(S)'
+owners:
+  -'OWNERS_ID(S)'
