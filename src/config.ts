@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 import fs from 'fs';
 import { safeDump, safeLoad } from 'js-yaml';
 import { CONFIG } from './globals';
@@ -5,6 +6,10 @@ import { CONFIG } from './globals';
 /**
  * This represents the config.yml
  * @class Config
+ * @property {string} db_host
+  *@property {number} db_port
+  *@property {string} db_user
+  *@property {string} db_pass
  * @property {string} token
  * @property {string} prefix
  * @property {string[]} allowedRoles
@@ -12,6 +17,14 @@ import { CONFIG } from './globals';
  * @property {string[]} owners
  */
 export default class Config {
+    public readonly db_host: string;
+
+    public readonly db_port: number;
+
+    public readonly db_user: string;
+
+    public readonly db_pass: string;
+
     public readonly token: string;
 
     public readonly prefix: string;
@@ -25,6 +38,10 @@ export default class Config {
     private static LOCATION = './config.yml';
 
     constructor() {
+      this.db_host = '';
+      this.db_port = 0;
+      this.db_user = '';
+      this.db_pass = '';
       this.token = '';
       this.prefix = '';
       this.allowedRoles = [''];

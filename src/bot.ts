@@ -6,7 +6,7 @@ import { CONFIG } from './globals';
 async function main() {
   const bot = new Client({
   // My choses prefix is "c." you can choose anything you want!
-    commandPrefix: 'c.',
+    commandPrefix: CONFIG.prefix,
     owner: CONFIG.owners,
 
   });
