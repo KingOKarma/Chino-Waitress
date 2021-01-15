@@ -10,7 +10,7 @@ export default class colourListCommand extends commando.Command {
   constructor(client: commando.CommandoClient) {
     super(client, {
       name: 'colours',
-      aliases: ['colors', 'color', 'colours', 'c'],
+      aliases: ['colors', 'color', 'colour', 'c'],
       group: 'staff',
       memberName: 'colours',
       description: 'Lets you decide to add, remove, or list the boosters colours roles',

@@ -25,6 +25,12 @@ export function getRole(
   return guild.roles.cache.get(ridParsed);
 }
 
+/**
+ * Used to check member mentions/ID's if they are roles
+ * @param {string} uid The Member's ID
+ * @param {Guild} guild the Guild instance the of where the Member is from
+ * @returns {GuildMember} A Member instance from a server
+ */
 export function getMember(
   uid: string,
   guild: Guild,
@@ -37,16 +43,11 @@ export function getMember(
     uidParsed = uid.replace(re, '');
   }
   // Try recovering the role and report if it was successful or not.
-  try {
-    return guild.members.cache.get(uidParsed);
-  } catch (e) {
-    console.log(`Member not found because ${e}`);
-    return undefined;
-  }
+  return guild.members.cache.get(uidParsed);
 }
 
 /**
- * Used to check if a user has at least one role from a list
+ * Used to check if a user has at least one role from a list, returns true if found
  * @param {GuildMember} member The member instance
  * @param {string[]} array the array of role ID's to check through
  * @returns {boolean} true or false

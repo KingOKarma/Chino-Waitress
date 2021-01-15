@@ -1,6 +1,6 @@
 import { Client } from 'discord.js-commando';
 import path from 'path';
-import { onMemberUpdate, onReady } from './events';
+import { onMemberUpdate, onMessage, onReady } from './events';
 import { CONFIG } from './globals';
 
 async function main() {
@@ -16,10 +16,13 @@ async function main() {
 
   bot.on('guildMemberUpdate', onMemberUpdate);
 
+  bot.on('message', onMessage);
+
   // registers all groups/commands/etc
   bot.registry.registerGroups([
     ['boosters'],
     ['staff'],
+    ['economy'],
   ]).registerDefaults()
     .registerCommandsIn(
       path.join(__dirname, 'commands'),

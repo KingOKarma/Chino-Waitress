@@ -1,6 +1,8 @@
-import { Client, GuildMember } from 'discord.js';
+import { Client, GuildMember, Message } from 'discord.js';
 import fs from 'fs';
+import { addUserBalance, getUserBalance, updateUserBalance } from './db/balance';
 import { CONFIG } from './globals';
+import { checkRoles } from './utils/utils';
 
 export function onReady(bot: Client) {
   if (!bot.user) {
@@ -11,15 +13,16 @@ export function onReady(bot: Client) {
   bot.user.setActivity('I\'m still a work in progress owo!'); // sets status
 
   setInterval(() => {
-    // Temporary fix, as i cannot be asked to make this look better right now
     if (!bot.user) {
       return;
     }
-    const files = fs.readdirSync('./pfps');
+    // If you know a better way of getting this system to work feel free
+    // to contact me.
+    const files = fs.readdirSync('./src/pfps');
 
     const chosenFile = files[Math.floor(Math.random() * files.length)];
 
-    bot.user.setAvatar(`./pfps/${chosenFile}`)
+    bot.user.setAvatar(`./src/pfps/${chosenFile}`)
       .catch((err) => {
         console.log(err);
       });
@@ -61,4 +64,67 @@ export function onMemberUpdate(_: GuildMember, mem: GuildMember) {
       }
     });
   }
+}
+
+const balDely = new Set();
+
+/**
+ * Triggered when a message is sent
+ * @param {Message} msg The Message Instance
+ */
+export async function onMessage(msg: Message) {
+  setTimeout(async () => {
+    if (msg.author.bot) {
+      return undefined;
+    }
+    if (msg.guild === null) {
+      return console.log('Not in a guild');
+    }
+    if (msg.member === null) {
+      return undefined;
+    }
+
+    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+    if (!perms) {
+      return undefined;
+    }
+    addUserBalance(msg.author, msg.guild.id);
+
+    const balance = await getUserBalance(msg.guild.id);
+
+    if (balance === undefined) {
+    // if there are no users return
+      return undefined;
+    }
+
+    const userDb = balance.find((user) => user.uid === msg.author.id);
+
+    if (userDb === undefined) {
+    // if there are no users return
+      return undefined;
+    }
+
+    if (!balDely.has(msg.author.id)) {
+      let userBalance = userDb.balance;
+
+      userBalance += Math.floor((Math.random() * 7) + 2);
+
+      const newBal = Math.round(userBalance);
+      updateUserBalance(
+        {
+          username: msg.author.tag,
+          uid: msg.author.id,
+          guild_id: msg.guild.id,
+          balance: newBal,
+        },
+      );
+      balDely.add(msg.author.id);
+
+      setTimeout(() => {
+        balDely.delete(msg.author.id);
+      }, 10000);
+    }
+
+    return undefined;
+  }, 500);
 }

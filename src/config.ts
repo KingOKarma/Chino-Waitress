@@ -15,6 +15,7 @@ import { CONFIG } from './globals';
  * @property {string[]} allowedRoles
  * @property {string[]} colourRoles
  * @property {string[]} owners
+ * @property {string[]} workResponses
  */
 export default class Config {
     public readonly db_host: string;
@@ -35,6 +36,8 @@ export default class Config {
 
     public readonly owners: string[];
 
+    public readonly workResponses: string[];
+
     private static LOCATION = './config.yml';
 
     constructor() {
@@ -47,6 +50,7 @@ export default class Config {
       this.allowedRoles = [''];
       this.colourRoles = [''];
       this.owners = [''];
+      this.workResponses = [''];
     }
 
     /**

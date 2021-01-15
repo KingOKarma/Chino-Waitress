@@ -68,12 +68,12 @@ export default class UserInfoCommand extends commando.Command {
       return msg.say(`You do not have the \`${roleInstance.name}\` role`);
     }
 
-    msg.member.roles.remove(roleInstance, 'They used their booster perks');
+    msg.member.roles.remove(roleInstance, 'They used their booster perks to remove a role');
 
     const embed = new MessageEmbed()
       .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
       .setTitle(`${msg.author.username} Just Removed the ${roleInstance.name} Role`)
-      .setDescription(`You can any of the roles with \`${CONFIG.prefix}remove <number>\``)
+      .setDescription(`You can claim any other role with \`${CONFIG.prefix}add <number>\``)
       .setFooter('You can also get these roles by becoming a booster today!');
 
     return msg.say(embed);
