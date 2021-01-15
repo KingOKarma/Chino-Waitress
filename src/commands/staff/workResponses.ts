@@ -34,7 +34,7 @@ export default class boosterListCommand extends commando.Command {
           prompt: 'I need a string to add to or number to remove from (max length 100 characters)',
           type: 'string',
           default: '',
-          validate: (text: string) => text.length < 101,
+          validate: (text: string) => text.length < 201,
         },
       ],
     });
