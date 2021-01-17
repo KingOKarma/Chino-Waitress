@@ -50,7 +50,7 @@ export default class UserInfoCommand extends commando.Command {
 
     const items = userInv.map((userBal) => userBal);
 
-    items.sort((a, b) => a.balance - b.balance);
+    items.sort((a, b) => b.balance - a.balance);
 
     const data = [];
 
