@@ -3,6 +3,7 @@ import { Message, MessageEmbed } from 'discord.js';
 import * as commando from 'discord.js-commando';
 import { getServerShop } from '../../db/shop';
 import { CONFIG, rolePerms } from '../../globals';
+import { checkRoles } from '../../utils/utils';
 
 // Creates a new class (being the command) extending off of the commando client
 export default class UserInfoCommand extends commando.Command {
@@ -33,6 +34,13 @@ export default class UserInfoCommand extends commando.Command {
   public async run(
     msg: commando.CommandoMessage,
   ): Promise<Message | Message[]> {
+    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+
+    if (!perms) {
+      return msg.say(`You do not have permission to use this command ${msg.member},\n`
+                  + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
+    }
+
     const shopItem = await getServerShop(msg.guild.id);
 
     if (shopItem === undefined) {

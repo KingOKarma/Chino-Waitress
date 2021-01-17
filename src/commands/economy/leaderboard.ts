@@ -1,7 +1,7 @@
 /* eslint-disable camelcase */
 import { Message, MessageEmbed } from 'discord.js';
 import * as commando from 'discord.js-commando';
-import { getUserInvetory } from '../../db/inventory';
+import { getUserBalance } from '../../db/balance';
 import { CONFIG, rolePerms } from '../../globals';
 import { checkRoles } from '../../utils/utils';
 
@@ -9,14 +9,14 @@ import { checkRoles } from '../../utils/utils';
 export default class UserInfoCommand extends commando.Command {
   constructor(client: commando.CommandoClient) {
     super(client, {
-      name: 'inventory',
+      name: 'leaderboard',
       // Creates aliases
-      aliases: ['inv'],
+      aliases: ['lb'],
       // This is the group the command is put in
       group: 'economy',
       // This is the name of set within the group (most people keep this the same)
-      memberName: 'inventory',
-      description: 'Lists the items in a user\'s inventory!',
+      memberName: 'leaderboard',
+      description: 'Lists the servers leaderboard for currency',
       // Ratelimits the command usage to 3 every 5 seconds
       throttling: {
         usages: 3,
@@ -41,31 +41,39 @@ export default class UserInfoCommand extends commando.Command {
                   + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
     }
 
-    const userInv = await getUserInvetory(msg.guild.id);
+    const userInv = await getUserBalance(msg.guild.id);
 
     if (userInv === undefined) {
       // if there are no users return
       return msg.say('There seems to be a problem please contact the developer or staff');
     }
 
-    const items = userInv.map((itemName) => itemName.item_list);
+    const items = userInv.map((userBal) => userBal);
+
+    items.sort((a, b) => a.balance - b.balance);
+
+    const data = [];
+
+    for (let x = 1; x <= 100000; x += 1) {
+      data.push();
+    }
 
     if (items.length === 0) {
-      return msg.say('You have 0 items, you can buy them from the shop with 🍩 Donuts');
+      return msg.say('There are no members with any money');
     }
 
     if (items === []) {
-      return msg.say('You have 0 items, you can buy them from the shop with 🍩 Donuts');
+      return msg.say('There are no members with any money');
     }
 
-    // let i = 0;
+    let i = 0;
     const embed = new MessageEmbed();
     embed.setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }));
-    embed.setTitle(`${msg.author.tag}'s Inventory`);
+    embed.setTitle(`${msg.guild.name}'s Leaderboard`);
     embed.setFooter(`You can buy item with ${CONFIG.prefix}buy <item_name>`);
     items.forEach((item) => {
-      // i += 1;
-      embed.addField('Item\'s', `Your items:\n${item.join(' `|` ')}`);
+      i += 1;
+      embed.addField(`${i}`, `**${item.username}**\n${item.balance} 🍩`, true);
     });
     // console.log(i);
     return msg.say(embed);
