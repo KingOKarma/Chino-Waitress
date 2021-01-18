@@ -15,6 +15,8 @@ import { CONFIG } from './globals';
  * @property {string[]} allowedRoles
  * @property {string[]} colourRoles
  * @property {string[]} owners
+ * @property {string} boosterChannel
+ * @property {string} mutedRole
  * @property {string[]} workResponses
  */
 export default class Config {
@@ -36,6 +38,10 @@ export default class Config {
 
     public readonly owners: string[];
 
+    public readonly boosterChannel: string;
+
+    public readonly mutedRole: string;
+
     public readonly workResponses: string[];
 
     private static LOCATION = './config.yml';
@@ -50,6 +56,8 @@ export default class Config {
       this.allowedRoles = [''];
       this.colourRoles = [''];
       this.owners = [''];
+      this.boosterChannel = '';
+      this.mutedRole = '';
       this.workResponses = [''];
     }
 

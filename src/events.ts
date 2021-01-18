@@ -44,25 +44,44 @@ export function onMemberUpdate(_: GuildMember, mem: GuildMember) {
   // Loop over member roles to check if they have whitelisted roles
   const foundWhitelist = check.some((hasRole) => CONFIG.allowedRoles.includes(hasRole));
 
-  if (foundWhitelist) {
+  const channel = mem.guild.channels.cache.get(CONFIG.boosterChannel);
+
+  if (channel === undefined) {
     return;
   }
 
-  // Loop over member roles to check if they have colour roles
-  const foundColourRole = check.some((colorRoleId) => CONFIG.colourRoles.includes(colorRoleId));
+  if (!foundWhitelist) {
+    // Loop over member roles to check if they have colour roles
+    const foundColourRole = check.some((colorRoleId) => CONFIG.colourRoles.includes(colorRoleId));
 
-  if (foundColourRole) {
-    CONFIG.colourRoles.forEach(async (role) => {
-      const memberRoles = mem.roles.cache;
-      const invalidRole = memberRoles.get(role);
-      if (invalidRole) {
-        try {
-          await mem.roles.remove(role, 'Doesn\'t have required role');
-        } catch {
-          console.log(`Missing perms to remove colour roles from ${mem.user.tag}`);
+    if (foundColourRole) {
+      CONFIG.colourRoles.forEach(async (role) => {
+        const memberRoles = mem.roles.cache;
+        const invalidRole = memberRoles.get(role);
+        if (invalidRole) {
+          try {
+            await mem.roles.remove(role, 'Doesn\'t have required role');
+          } catch {
+            console.log(`Missing perms to remove colour roles from ${mem.user.tag}`);
+          }
         }
-      }
-    });
+      });
+    }
+  }
+  if (check.includes(CONFIG.mutedRole)) {
+    channel.overwritePermissions([
+      {
+        id: mem.user.id,
+        deny: ['SEND_MESSAGES'],
+      },
+    ]);
+  }
+  if (!check.includes(CONFIG.mutedRole)) {
+    const memberPerms = channel.permissionOverwrites.get(mem.user.id);
+    if (memberPerms === undefined) {
+      return;
+    }
+    memberPerms.delete('No longer muted');
   }
 }
 

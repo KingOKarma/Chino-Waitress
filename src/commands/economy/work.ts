@@ -56,12 +56,13 @@ export default class UserInfoCommand extends commando.Command {
       return msg.say('You have no money stored, You may not be a booster for the server');
     }
 
-    const plusBal = Math.floor((Math.random() * 275) + 25);
-    const timeout = 43200 * 1000;
+    const plusBal = Math.floor((Math.random() * 500) + 100);
+    const timeout = 21600 * 1000;
     const key = `${msg.author.id}work`;
     const found = Timeout.get(key);
 
-    if (found && msg.author.id !== '406211463125008386') {
+    const userPerms = msg.member.permissions.has('KICK_MEMBERS');
+    if (found && !userPerms) {
       const timePassed = Date.now() - found;
       const timeLeft = timeout - timePassed;
       return msg.say(`**Slow down worker, you can work again in ${ms(timeLeft)}!**`);
@@ -71,7 +72,7 @@ export default class UserInfoCommand extends commando.Command {
 
     userBalance += plusBal;
 
-    const Hours = 43200;
+    const Hours = 21600;
 
     const newBal = Math.round(userBalance);
     updateUserBalance(

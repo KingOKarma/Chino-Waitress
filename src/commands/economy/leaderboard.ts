@@ -52,12 +52,6 @@ export default class UserInfoCommand extends commando.Command {
 
     items.sort((a, b) => b.balance - a.balance);
 
-    const data = [];
-
-    for (let x = 1; x <= 100000; x += 1) {
-      data.push();
-    }
-
     if (items.length === 0) {
       return msg.say('There are no members with any money');
     }
