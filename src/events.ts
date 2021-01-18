@@ -68,19 +68,18 @@ export function onMemberUpdate(_: GuildMember, mem: GuildMember) {
       });
     }
   }
+
   if (check.includes(CONFIG.mutedRole)) {
-    channel.overwritePermissions([
-      {
-        id: mem.user.id,
-        deny: ['SEND_MESSAGES'],
-      },
-    ]);
+    channel.createOverwrite(mem, { SEND_MESSAGES: false }, 'User Was muted');
   }
+
   if (!check.includes(CONFIG.mutedRole)) {
     const memberPerms = channel.permissionOverwrites.get(mem.user.id);
+
     if (memberPerms === undefined) {
       return;
     }
+
     memberPerms.delete('No longer muted');
   }
 }
