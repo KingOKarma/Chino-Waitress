@@ -95,7 +95,7 @@ export default class UserInfoCommand extends commando.Command {
     embed.setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }));
     embed.setTitle(`${msg.guild.name}'s Leaderboard`);
     embed.setDescription(`You are in position: **${authorPost.username}**\n You have \`${userDb.balance}\`🍩`);
-    embed.setFooter(`You can buy item with ${CONFIG.prefix}buy <item_name>`);
+    embed.setFooter(`You can find the next page with ${CONFIG.prefix}lb <page_number>`);
     IteamsPaged.forEach(async (item: UserCurrency) => {
       // item.index
       embed.addField(`${item.username}`, `${item.balance} 🍩`, true);
