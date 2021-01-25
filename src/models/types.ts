@@ -24,7 +24,7 @@ export type UserCurrencyDb = {
    username: string
    uid: string,
    guild_id: string,
-   balance: number
+   balance: number,
  }
 
 /**

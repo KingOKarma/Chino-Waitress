@@ -106,11 +106,30 @@ export async function getUserBalance(guildID: string):
 
 /**
  * Delete the user from the database of the shop
- * @param {string} item_name
+ * @param {string} uid the Users's ID
  * @returns {Promise<void>}
  */
 export async function deleteUserfromDb(uid: string): Promise<void> {
   poolDb.query(
     'DELETE FROM booster_balance.user_currency WHERE uid = $1', [uid],
+  );
+}
+
+/**
+ * Gets the index of a user in an array
+ * @param {string} uid the Users's ID
+ * @param {string} guildID The Guild's ID
+
+ * @returns {Promise<void>}
+ */
+export async function indexUserfromDb(guildID: string): Promise<any> {
+  return poolDb.query(
+    'SELECT'
+    + ' balance,'
+    + ' ROW_NUMBER () OVER'
+    + ' (ORDER BY booster_balance.user_currency.balance)'
+    + ' FROM booster_balance.user_currency'
+    + ' WHERE guild_id = $1',
+    [guildID],
   );
 }

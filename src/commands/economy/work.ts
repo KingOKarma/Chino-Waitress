@@ -72,6 +72,7 @@ export default class UserInfoCommand extends commando.Command {
 
     userBalance += plusBal;
 
+    // 6 hours/1000 in miliseconds
     const Hours = 21600;
 
     const newBal = Math.round(userBalance);
@@ -87,7 +88,7 @@ export default class UserInfoCommand extends commando.Command {
 
     setTimeout(() => {
       Timeout.delete(key);
-      // 12 hours
+      // 6 hours
     }, Hours * 1000);
 
     let response = CONFIG.workResponses[Math.floor(Math.random() * CONFIG.workResponses.length)];

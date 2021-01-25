@@ -66,3 +66,15 @@ export function checkRoles(
   }
   return false;
 }
+
+/**
+ *Used to create pages of an array
+ * @param {object[]} array The array to create pages for
+ * @param {number} PageSize How long do you want the pages to be
+ * @param {number} PageNumber What page of the array do you want to be on
+ * @returns {string[]} The page of the array you want
+ */
+export function paginate(array: any, PageSize: number, PageNumber: number) {
+  // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+  return array.slice((PageNumber - 1) * PageSize, PageNumber * PageSize);
+}
