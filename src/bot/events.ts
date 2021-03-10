@@ -1,7 +1,9 @@
 import { Client, GuildMember, Message } from 'discord.js';
 import fs from 'fs';
-import { addUserBalance, getUserBalance, updateUserBalance } from './db/balance';
+import { getRepository } from 'typeorm';
+import { User } from '../entity/user';
 import { CONFIG } from './globals';
+import { Guild as entityGuild } from '../entity/guild';
 import { checkRoles } from './utils/utils';
 
 export function onReady(bot: Client) {
@@ -84,65 +86,63 @@ export function onMemberUpdate(_: GuildMember, mem: GuildMember) {
   }
 }
 
-const balDely = new Set();
+const xpTimeout = new Map();
 
 /**
  * Triggered when a message is sent
  * @param {Message} msg The Message Instance
  */
-export async function onMessage(msg: Message) {
-  setTimeout(async () => {
-    if (msg.author.bot) {
-      return undefined;
-    }
-    if (msg.guild === null) {
-      return console.log('Not in a guild');
-    }
-    if (msg.member === null) {
-      return undefined;
-    }
+export async function onMessage(msg: Message): Promise<void> {
+  if (msg.author.bot) return undefined;
+  if (msg.guild === null) return undefined;
+  if (msg.member === null) return undefined;
 
-    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
-    if (!perms) {
-      return undefined;
-    }
-    addUserBalance(msg.author, msg.guild.id);
-
-    const balance = await getUserBalance(msg.guild.id);
-
-    if (balance === undefined) {
-    // if there are no users return
-      return undefined;
-    }
-
-    const userDb = balance.find((user) => user.uid === msg.author.id);
-
-    if (userDb === undefined) {
-    // if there are no users return
-      return undefined;
-    }
-
-    if (!balDely.has(msg.author.id)) {
-      let userBalance = userDb.balance;
-
-      userBalance += Math.floor((Math.random() * 7) + 2);
-
-      const newBal = Math.round(userBalance);
-      updateUserBalance(
-        {
-          username: msg.author.tag,
-          uid: msg.author.id,
-          guild_id: msg.guild.id,
-          balance: newBal,
-        },
-      );
-      balDely.add(msg.author.id);
-
-      setTimeout(() => {
-        balDely.delete(msg.author.id);
-      }, 10000);
-    }
-
+  const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+  if (!perms) {
     return undefined;
-  }, 500);
+  }
+
+  const userRepo = getRepository(User);
+  const guildRepo = getRepository(entityGuild);
+
+  let guild = await guildRepo.findOne({ serverid: msg.guild.id });
+  const user = await userRepo.findOne({ serverId: msg.guild.id, uid: msg.author.id });
+  const timeout = xpTimeout.get(`${msg.author.id}messageEarn`);
+  const balGain = Math.floor((Math.random() * 7) + 2);
+
+  // If there is no Guild then add to  DB
+  if (!guild) {
+    // eslint-disable-next-line new-cap
+    const newGuild = new entityGuild();
+    newGuild.serverid = msg.guild.id;
+    newGuild.name = msg.guild.name;
+    guildRepo.save(newGuild);
+    guild = newGuild;
+  }
+
+  if (!timeout) {
+    if (!user) {
+      const newUser = new User();
+      newUser.uid = msg.author.id;
+      newUser.serverId = msg.guild.id;
+      newUser.avatar = msg.author.displayAvatarURL({ dynamic: true });
+      newUser.tag = msg.author.tag;
+      newUser.balance = balGain;
+      userRepo.save(newUser);
+    } else {
+      user.uid = msg.author.id;
+      user.serverId = msg.guild.id;
+      user.avatar = msg.author.displayAvatarURL({ dynamic: true });
+      user.tag = msg.author.tag;
+      user.balance += balGain;
+
+      xpTimeout.set(`${msg.author.id}messageEarn`, '1');
+      setTimeout(() => {
+        xpTimeout.delete(`${msg.author.id}messageEarn`);
+      }, 5 * 2000);
+      userRepo.save(user);
+    }
+  }
+
+  return undefined;
 }

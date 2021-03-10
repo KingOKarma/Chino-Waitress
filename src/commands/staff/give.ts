@@ -1,11 +1,12 @@
 /* eslint-disable camelcase */
 import * as commando from 'discord.js-commando';
 import {
-} from '../../utils/roles';
+} from '../../bot/utils/roles';
 import { Message, MessageEmbed } from 'discord.js';
-import { rolePerms } from '../../globals';
-import { getUserBalance, updateUserBalance } from '../../db/balance';
-import { getMember } from '../../utils/utils';
+import { getRepository } from 'typeorm';
+import { rolePerms } from '../../bot/globals';
+import { User } from '../../entity/user';
+import { getMember } from '../../bot/utils/utils';
 
 export default class colourListCommand extends commando.Command {
   constructor(client: commando.CommandoClient) {
@@ -23,7 +24,7 @@ export default class colourListCommand extends commando.Command {
       guildOnly: true,
       args: [
         {
-          key: 'user',
+          key: 'memberID',
           prompt: 'The User you are giving to',
           type: 'string',
         },
@@ -39,43 +40,41 @@ export default class colourListCommand extends commando.Command {
 
   public async run(
     msg: commando.CommandoMessage,
-    { user, amount }: {
-         user: string,
+    { memberID, amount }: {
+      memberID: string,
           amount: number,
          },
   ): Promise<Message | Message[]> {
-    const userDb = await getUserBalance(msg.guild.id);
-    const member = getMember(user, msg.guild);
+    const userRepo = getRepository(User);
+    let member = await getMember(memberID, msg.guild);
 
-    if (member === undefined) {
-      return msg.reply('Sorry I cannot find that user!');
-    }
-    if (userDb === undefined) {
-      return msg.reply('Seems to be a problem, please contact the developer');
+    if (member === null) {
+      member = msg.member;
     }
 
-    const userBal = userDb.find((userDB) => userDB.uid === member.id);
+    let user = await userRepo.findOne({ serverId: msg.guild.id, uid: member.user.id });
 
-    if (userBal === undefined) {
-      return msg.reply('Couldn\'t find that user, they might not have any money in the database');
+    if (!user) {
+      const newUser = new User();
+      newUser.uid = msg.author.id;
+      newUser.serverId = msg.guild.id;
+      newUser.avatar = msg.author.displayAvatarURL({ dynamic: true });
+      newUser.tag = msg.author.tag;
+      newUser.balance = 1;
+      userRepo.save(newUser);
+      user = newUser;
     }
 
-    let userBalance = userBal.balance;
+    let userBal = user.balance;
+    userBal += amount;
 
-    userBalance += amount;
+    user.balance += amount;
+    userRepo.save(user);
 
-    updateUserBalance(
-      {
-        username: member.user.tag,
-        uid: member.user.id,
-        guild_id: msg.guild.id,
-        balance: userBalance,
-      },
-    );
     const embed = new MessageEmbed()
       .setAuthor(member.user.tag, member.user.displayAvatarURL({ dynamic: true }))
       .setTitle('User Give')
-      .setDescription(`I have given **${amount}🍩** to \`${member.user.tag}\` they now have **${userBalance}**🍩`)
+      .setDescription(`I have given **${amount}🍩** to \`${member.user.tag}\` they now have **${userBal}**🍩 Donuts`)
       .setFooter(`Given by ${msg.author.tag}`)
       .setTimestamp();
     return msg.say(embed);

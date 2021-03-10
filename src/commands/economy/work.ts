@@ -1,104 +1,97 @@
-import { Message, MessageEmbed } from 'discord.js';
 import * as commando from 'discord.js-commando';
+import { Message, MessageEmbed } from 'discord.js';
+import { getRepository } from 'typeorm';
 import ms from 'ms';
-import { getUserBalance, updateUserBalance } from '../../db/balance';
-import { CONFIG, rolePerms } from '../../globals';
-import { checkRoles } from '../../utils/utils';
+import { CONFIG } from '../../bot/globals';
+import { Guild } from '../../entity/guild';
+import { User } from '../../entity/user';
 
-const Timeout = new Map();
+const timeOut = new Map();
+const devs = CONFIG.owners;
 
-// Creates a new class (being the command) extending off of the commando client
-export default class UserInfoCommand extends commando.Command {
-  constructor(client: commando.CommandoClient) {
+export default class WorkCommand extends commando.Command {
+  public constructor(client: commando.CommandoClient) {
     super(client, {
-      name: 'work',
-      // Creates aliases
-      // This is the group the command is put in
+      description: 'Work to become a world renowned KFC worker',
       group: 'economy',
-      // This is the name of set within the group (most people keep this the same)
-      memberName: 'work',
-      description: 'Work to earn money',
-      // Ratelimits the command usage to 3 every 5 seconds
-      throttling: {
-        usages: 3,
-        duration: 5,
-      },
-      // Makes commands only avalabie within the guild
       guildOnly: true,
-      // Require's bot to have MANAGE_MESSAGES perms
-      clientPermissions: rolePerms,
+      memberName: 'work',
+      name: 'work',
+      throttling: {
+        duration: 3,
+        usages: 4,
+      },
     });
   }
 
-  // Now to run the actual command, the run() parameters need to be defiend (by types and names)
   public async run(
     msg: commando.CommandoMessage,
   ): Promise<Message | Message[]> {
-    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+    const userRepo = getRepository(User);
+    const guildRepo = getRepository(Guild);
 
-    if (!perms) {
-      return msg.say(`You do not have permission to use this command ${msg.member},\n`
-        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
+    if (msg.guild === null) {
+      return msg.say('Sorry there was a problem please try again');
     }
 
-    const balance = await getUserBalance(msg.guild.id);
+    let guild = await guildRepo.findOne({ serverid: msg.guild.id });
+    let user = await userRepo.findOne({ serverId: msg.guild.id, uid: msg.author.id });
 
-    if (balance === undefined) {
-      // if there are no users return
-      return msg.say('There seems to be a problem please contact the developer or staff');
+    // If there is no Guild then add to  DB
+    if (!guild) {
+      const newGuild = new Guild();
+      newGuild.serverid = msg.guild.id;
+      newGuild.name = msg.guild.name;
+      guildRepo.save(newGuild);
+      guild = newGuild;
     }
 
-    const userDb = balance.find((user) => user.uid === msg.author.id);
-
-    const embed = new MessageEmbed();
-    if (userDb === undefined) {
-      // if there are no users return
-      return msg.say('You have no money stored, You may not be a booster for the server');
+    if (!user) {
+      const newUser = new User();
+      newUser.uid = msg.author.id;
+      newUser.serverId = msg.guild.id;
+      newUser.avatar = msg.author.displayAvatarURL({ dynamic: true });
+      newUser.tag = msg.author.tag;
+      newUser.balance = 1;
+      await userRepo.save(newUser);
+      user = newUser;
     }
 
-    const plusBal = Math.floor((Math.random() * 500) + 100);
+    // Return msg.say("There was a problem getting your user from the database, try again!");
+
+    const isdev = devs.some((checkDev) => checkDev === msg.author.id);
     const timeout = 21600 * 1000;
     const key = `${msg.author.id}work`;
-    const found = Timeout.get(key);
+    const found = timeOut.get(key);
 
-    const userPerms = msg.member.permissions.has('KICK_MEMBERS');
-    if (found && !userPerms) {
+    // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
+    if (found && !isdev) {
       const timePassed = Date.now() - found;
       const timeLeft = timeout - timePassed;
-      return msg.say(`**Slow down worker, you can work again in ${ms(timeLeft)}!**`);
+      return msg.say(`**Whoa there you're a bit too fast there. you gotta wait another ${ms(timeLeft)}!**`);
     }
 
-    let userBalance = userDb.balance;
-
-    userBalance += plusBal;
+    const earn = Math.floor((Math.random() * 500) + 100);
+    timeOut.set(key, Date.now());
 
     // 6 hours/1000 in miliseconds
-    const Hours = 21600;
-
-    const newBal = Math.round(userBalance);
-    updateUserBalance(
-      {
-        username: msg.author.tag,
-        uid: msg.author.id,
-        guild_id: msg.guild.id,
-        balance: newBal,
-      },
-    );
-    Timeout.set(key, Date.now());
+    const HOURS = 21600;
 
     setTimeout(() => {
-      Timeout.delete(key);
+      timeOut.delete(`${msg.author.id}work`);
       // 6 hours
-    }, Hours * 1000);
+    }, HOURS * 1000);
 
     let response = CONFIG.workResponses[Math.floor(Math.random() * CONFIG.workResponses.length)];
 
+    const plusBal = user.balance + earn;
     const bal = `**${plusBal}🍩**`;
 
     if (response.includes('{bal}')) {
       const replace = new RegExp('{bal}', 'g');
       response = response.replace(replace, bal);
     }
+    const embed = new MessageEmbed();
 
     embed.setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }));
     embed.setTitle('Working Hours');

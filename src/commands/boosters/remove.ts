@@ -1,10 +1,10 @@
 import { Message, MessageEmbed } from 'discord.js';
 import * as commando from 'discord.js-commando';
-import { CONFIG, rolePerms } from '../../globals';
-import { checkRoles, getRole } from '../../utils/utils';
+import { CONFIG, rolePerms } from '../../bot/globals';
+import { checkRoles, getRole } from '../../bot/utils/utils';
 
 // Creates a new class (being the command) extending off of the commando client
-export default class UserInfoCommand extends commando.Command {
+export default class RemoveCommand extends commando.Command {
   constructor(client: commando.CommandoClient) {
     super(client, {
       name: 'remove',
@@ -50,7 +50,7 @@ export default class UserInfoCommand extends commando.Command {
 
       const embed = new MessageEmbed()
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
-        .setTitle('Your Claimable Rewards:')
+        .setTitle('Ths list of roles to remove:')
         .setDescription(roleList.join(''))
         .setFooter('You can also get these roles by becoming a booster today!');
 
@@ -58,7 +58,7 @@ export default class UserInfoCommand extends commando.Command {
     }
     const roleIndex = Number(number) - 1;
     const role = CONFIG.colourRoles[roleIndex];
-    const roleInstance = getRole(msg.guild, role);
+    const roleInstance = getRole(role, msg.guild);
 
     if (roleInstance === undefined) {
       return msg.say('That role does not exist');
@@ -72,8 +72,8 @@ export default class UserInfoCommand extends commando.Command {
 
     const embed = new MessageEmbed()
       .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
-      .setTitle(`${msg.author.username} Just Removed the ${roleInstance.name} Role`)
-      .setDescription(`You can claim any other role with \`${CONFIG.prefix}add <number>\``)
+      .setTitle(`You have Just Removed the ${roleInstance.name} Role`)
+      .setDescription(`You can claim any other role with \`${CONFIG.prefix}claim <number>\``)
       .setFooter('You can also get these roles by becoming a booster today!');
 
     return msg.say(embed);

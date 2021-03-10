@@ -1,10 +1,10 @@
 import * as commando from 'discord.js-commando';
-import { CONFIG, rolePerms } from '../../globals';
+import { CONFIG, rolePerms } from '../../bot/globals';
 import {
   addList,
   listList,
   removeList,
-} from '../../utils/lists';
+} from '../../bot/utils/lists';
 
 export default class boosterListCommand extends commando.Command {
   constructor(client: commando.CommandoClient) {

@@ -1,10 +1,10 @@
 import { Message, MessageEmbed } from 'discord.js';
 import * as commando from 'discord.js-commando';
-import { CONFIG, rolePerms } from '../../globals';
-import { checkRoles, getRole } from '../../utils/utils';
+import { CONFIG, rolePerms } from '../../bot/globals';
+import { checkRoles, getRole } from '../../bot/utils/utils';
 
 // Creates a new class (being the command) extending off of the commando client
-export default class UserInfoCommand extends commando.Command {
+export default class ClaimCommand extends commando.Command {
   constructor(client: commando.CommandoClient) {
     super(client, {
       name: 'claim',
@@ -47,7 +47,7 @@ export default class UserInfoCommand extends commando.Command {
     }
 
     if (!number.match('^[0-9]+$')) {
-      const roleList = CONFIG.colourRoles.map((list, index) => `${index + 1} - <@&${list}>\n`);
+      const roleList = CONFIG.colourRoles.map((list: string, index: number) => `${index + 1} - <@&${list}>\n`);
 
       const embed = new MessageEmbed()
         .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
@@ -59,7 +59,7 @@ export default class UserInfoCommand extends commando.Command {
     }
     const roleIndex = Number(number) - 1;
     const role = CONFIG.colourRoles[roleIndex];
-    const roleInstance = getRole(msg.guild, role);
+    const roleInstance = getRole(role, msg.guild);
 
     if (roleInstance === undefined) {
       return msg.say('That role does not exist');
@@ -69,11 +69,29 @@ export default class UserInfoCommand extends commando.Command {
       return msg.say(`You already have the \`${roleInstance.name}\` role`);
     }
 
-    msg.member.roles.add(roleInstance, 'They used their booster perks');
+    const memRoles = msg.member.roles.cache;
+
+    const foundColourRole = memRoles.some((cRoleID) => CONFIG.colourRoles.includes(cRoleID.id));
+
+    if (foundColourRole) {
+      CONFIG.colourRoles.forEach(async (cRole) => {
+        const memberRoles = msg.member.roles.cache;
+        const invalidRole = memberRoles.get(cRole);
+        if (invalidRole) {
+          try {
+            await msg.member.roles.remove(cRole, 'Doesn\'t have required role');
+          } catch {
+            console.log(`Missing perms to remove colour roles from ${msg.member.user.tag}`);
+          }
+        }
+      });
+    }
+
+    await msg.member.roles.add(roleInstance, 'They used their booster perks');
 
     const embed = new MessageEmbed()
       .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
-      .setTitle(`${msg.author.username} Just Claimed the ${roleInstance.name} Role`)
+      .setTitle(`You have just Claimed the ${roleInstance.name} Role`)
       .setDescription(`You can remove the ${roleInstance} with \`${CONFIG.prefix}remove <number>\``)
       .setFooter('You can also get these roles by becoming a booster today!');
 

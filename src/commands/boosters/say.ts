@@ -1,7 +1,5 @@
 import { Message } from 'discord.js';
 import * as commando from 'discord.js-commando';
-import { CONFIG } from '../../globals';
-import { checkRoles } from '../../utils/utils';
 
 // Creates a new class (being the command) extending off of the commando client
 export default class sayCommand extends commando.Command {
@@ -22,6 +20,7 @@ export default class sayCommand extends commando.Command {
       },
       // Checks if bot has delete message perms
       clientPermissions: ['MANAGE_MESSAGES'],
+      userPermissions: ['MANAGE_MESSAGES'],
       // Makes commands only avalabie within the guild
       guildOnly: true,
       // These are your arguments
@@ -40,11 +39,6 @@ export default class sayCommand extends commando.Command {
     msg: commando.CommandoMessage,
     { args1 }: { args1: string },
   ): Promise<Message | Message[]> {
-    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
-    if (!perms) {
-      return msg.say(`You do not have permission to use this command ${msg.member},\n`
-        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
-    }
     // Deletes command usage
     msg.delete();
     // Responds with whatever the user has said.

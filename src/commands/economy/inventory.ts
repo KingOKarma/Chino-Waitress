@@ -1,73 +1,91 @@
-/* eslint-disable camelcase */
-import { Message, MessageEmbed } from 'discord.js';
 import * as commando from 'discord.js-commando';
-import { getUserInvetory } from '../../db/inventory';
-import { CONFIG, rolePerms } from '../../globals';
-import { checkRoles } from '../../utils/utils';
+import { Message, MessageEmbed } from 'discord.js';
+import { getRepository } from 'typeorm';
+import { Guild } from '../../entity/guild';
+import { Inventory } from '../../entity/inventory';
+import { ItemMeta } from '../../entity/item';
+import { stringpaginate } from '../../bot/utils/utils';
 
-// Creates a new class (being the command) extending off of the commando client
-export default class UserInfoCommand extends commando.Command {
-  constructor(client: commando.CommandoClient) {
+export default class InventoryCommand extends commando.Command {
+  private constructor(client: commando.CommandoClient) {
     super(client, {
-      name: 'inventory',
-      // Creates aliases
-      aliases: ['inv'],
-      // This is the group the command is put in
+      aliases: ['inv', 'iv'],
+      args: [
+        {
+          default: '1',
+          error: 'Please only use a number for the page',
+          key: 'page',
+          prompt: 'What positiion are you looking for (number)',
+          type: 'integer',
+          validate: (amount: number): boolean => amount >= 0,
+        },
+      ],
+      clientPermissions: ['EMBED_LINKS'],
+      description: "Display's your user's inventory",
       group: 'economy',
-      // This is the name of set within the group (most people keep this the same)
-      memberName: 'inventory',
-      description: 'Lists the items in a user\'s inventory!',
-      // Ratelimits the command usage to 3 every 5 seconds
-      throttling: {
-        usages: 3,
-        duration: 5,
-      },
-
-      // Makes commands only avalabie within the guild
       guildOnly: true,
-      // Require's bot to have MANAGE_MESSAGES perms
-      clientPermissions: rolePerms,
+      memberName: 'inventory',
+      name: 'inventory',
+      throttling: {
+        duration: 3,
+        usages: 3,
+      },
     });
   }
 
-  // Now to run the actual command, the run() parameters need to be defiend (by types and names)
   public async run(
     msg: commando.CommandoMessage,
+    { page }: { page: number; },
   ): Promise<Message | Message[]> {
-    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+    const invRepo = getRepository(Inventory);
+    const itemsRepo = getRepository(ItemMeta);
+    const guildRepo = getRepository(Guild);
 
-    if (!perms) {
-      return msg.say(`You do not have permission to use this command ${msg.member},\n`
-                  + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
+    if (msg.guild === null) {
+      return msg.say('Sorry there was a problem please try again');
     }
 
-    const userInv = await getUserInvetory(msg.guild.id);
+    const guild = await guildRepo.findOne({ serverid: msg.guild.id });
 
-    if (userInv === undefined) {
-      // if there are no users return
-      return msg.say('There seems to be a problem please contact the developer or staff');
+    const itemList = await invRepo.findOne({ serverid: msg.guild.id, uid: msg.author.id });
+
+    if (!itemList) {
+      return msg.say('You have no items in your inventory, you can buy them from the server shop!');
     }
 
-    const items = userInv.map((itemName) => itemName.item_list);
-
-    if (items.length === 0) {
-      return msg.say('You have 0 items, you can buy them from the shop with 🍩 Donuts');
+    if (!guild) {
+      return msg.say('A shop has not been setup in this server, please ask a server manager to do so');
     }
 
-    if (items === []) {
-      return msg.say('You have 0 items, you can buy them from the shop with 🍩 Donuts');
+    const iteamsPaged: string[] = stringpaginate(itemList.items, 9, page);
+
+    if (iteamsPaged.length === 0) {
+      return msg.say('There are no items on that page');
     }
 
-    // let i = 0;
+    let guildicon = msg.guild.iconURL({ dynamic: true });
+    if (guildicon === null) {
+      guildicon = '';
+    }
+
     const embed = new MessageEmbed();
+
+    // eslint-disable-next-line no-restricted-syntax
+    for (const item of iteamsPaged) {
+      // eslint-disable-next-line no-await-in-loop
+      const itemInfo = await itemsRepo.findOne({ guild, name: item });
+      if (!itemInfo) {
+        return msg.say('An item in the server could not be found');
+      }
+      embed.addField(`${item}`, itemInfo.description);
+    }
+
+    embed.setColor('BLUE');
     embed.setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }));
-    embed.setTitle(`${msg.author.tag}'s Inventory`);
-    embed.setFooter(`You can buy item with ${CONFIG.prefix}buy <item_name>`);
-    items.forEach((item) => {
-      // i += 1;
-      embed.addField('Item\'s', `Your items:\n${item.join(' `|` ')}`);
-    });
-    // console.log(i);
-    return msg.say(embed);
+    embed.setTitle('Inventory');
+    embed.setFooter("If there is a problem with an item please report it's ID number to the dev");
+    embed.setThumbnail(guildicon);
+
+    return msg.channel.send(embed);
   }
 }

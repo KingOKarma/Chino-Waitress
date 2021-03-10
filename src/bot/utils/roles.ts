@@ -16,7 +16,7 @@ export function addRole(
   array: string[],
   array2: string[],
 ): Promise<Message | Message[]> {
-  const role = getRole(msg.guild, rid);
+  const role = getRole(rid, msg.guild);
 
   // if the first argument is the @everyone id or undefined return
   if (role === undefined || rid === msg.guild.id) {
@@ -60,7 +60,7 @@ export function removeRole(
   array: string[],
   array2: string[],
 ): Promise<Message | Message[]> {
-  const role = getRole(msg.guild, rid);
+  const role = getRole(rid, msg.guild);
   // if the first argument is the @everyone id or undefined return
   if (role === undefined || rid === msg.guild.id) {
     return msg.reply('That\' not a role! ❌');

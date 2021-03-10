@@ -3,8 +3,8 @@ import {
   addRole,
   listRoles,
   removeRole,
-} from '../../utils/roles';
-import { CONFIG, rolePerms } from '../../globals';
+} from '../../bot/utils/roles';
+import { CONFIG, rolePerms } from '../../bot/globals';
 
 export default class colourListCommand extends commando.Command {
   constructor(client: commando.CommandoClient) {

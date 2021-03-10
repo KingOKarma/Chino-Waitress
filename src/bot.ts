@@ -1,9 +1,12 @@
+import 'reflect-metadata';
 import { Client } from 'discord.js-commando';
 import path from 'path';
-import { onMemberUpdate, onMessage, onReady } from './events';
-import { CONFIG } from './globals';
+import { createConnection } from 'typeorm';
+import { onMemberUpdate, onMessage, onReady } from './bot/events';
+import { CONFIG } from './bot/globals';
 
 async function main() {
+  await createConnection();
   const bot = new Client({
   // My choses prefix is "c." you can choose anything you want!
     commandPrefix: CONFIG.prefix,

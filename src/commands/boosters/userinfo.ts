@@ -1,7 +1,7 @@
 import { Message, MessageEmbed } from 'discord.js';
 import * as commando from 'discord.js-commando';
-import { CONFIG } from '../../globals';
-import { checkRoles, getMember } from '../../utils/utils';
+import { CONFIG } from '../../bot/globals';
+import { checkRoles, getMember } from '../../bot/utils/utils';
 
 // Creates a new class (being the command) extending off of the commando client
 export default class UserInfoCommand extends commando.Command {
@@ -48,9 +48,9 @@ export default class UserInfoCommand extends commando.Command {
         + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
     }
     // Responds with whatever the user has said.
-    const member = getMember(memberID, msg.guild);
+    const member = await getMember(memberID, msg.guild);
 
-    if (member === undefined) {
+    if (member === null) {
       return msg.reply('Sorry I cannot find that user!');
     }
 
