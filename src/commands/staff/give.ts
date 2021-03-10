@@ -56,10 +56,10 @@ export default class colourListCommand extends commando.Command {
 
     if (!user) {
       const newUser = new User();
-      newUser.uid = msg.author.id;
-      newUser.serverId = msg.guild.id;
-      newUser.avatar = msg.author.displayAvatarURL({ dynamic: true });
-      newUser.tag = msg.author.tag;
+      newUser.uid = member.user.id;
+      newUser.serverId = member.guild.id;
+      newUser.avatar = member.user.displayAvatarURL({ dynamic: true });
+      newUser.tag = member.user.tag;
       newUser.balance = 1;
       userRepo.save(newUser);
       user = newUser;
