@@ -84,8 +84,7 @@ export default class WorkCommand extends commando.Command {
 
     let response = CONFIG.workResponses[Math.floor(Math.random() * CONFIG.workResponses.length)];
 
-    const plusBal = user.balance + earn;
-    const bal = `**${plusBal}🍩**`;
+    const bal = `**${earn}🍩**`;
 
     if (response.includes('{bal}')) {
       const replace = new RegExp('{bal}', 'g');
