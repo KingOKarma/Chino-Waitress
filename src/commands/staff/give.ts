@@ -61,7 +61,6 @@ export default class colourListCommand extends commando.Command {
       newUser.avatar = member.user.displayAvatarURL({ dynamic: true });
       newUser.tag = member.user.tag;
       newUser.balance = 1;
-      userRepo.save(newUser);
       user = newUser;
     }
 
