@@ -4,6 +4,7 @@ import { getRepository } from 'typeorm';
 import { CONFIG } from '../../bot/globals';
 import { Guild } from '../../entity/guild';
 import { ItemMeta } from '../../entity/item';
+import { checkRoles } from '../../bot/utils/utils';
 
 export default class ItemInfoCommand extends commando.Command {
   private constructor(client: commando.CommandoClient) {
