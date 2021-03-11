@@ -4,7 +4,8 @@ import { getRepository } from 'typeorm';
 import { Guild } from '../../entity/guild';
 import { Inventory } from '../../entity/inventory';
 import { ItemMeta } from '../../entity/item';
-import { stringpaginate } from '../../bot/utils/utils';
+import { checkRoles, stringpaginate } from '../../bot/utils/utils';
+import { CONFIG } from '../../bot/globals';
 
 export default class InventoryCommand extends commando.Command {
   private constructor(client: commando.CommandoClient) {
@@ -37,6 +38,12 @@ export default class InventoryCommand extends commando.Command {
     msg: commando.CommandoMessage,
     { page }: { page: number; },
   ): Promise<Message | Message[]> {
+    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+    if (!perms) {
+      return msg.say(`You do not have permission to use this command ${msg.member},\n`
+        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
+    }
+
     const invRepo = getRepository(Inventory);
     const itemsRepo = getRepository(ItemMeta);
     const guildRepo = getRepository(Guild);

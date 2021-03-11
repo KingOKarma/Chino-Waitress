@@ -34,6 +34,12 @@ export default class ItemInfoCommand extends commando.Command {
     msg: commando.CommandoMessage,
     { itemName }: { itemName: string; },
   ): Promise<Message | Message[]> {
+    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+    if (!perms) {
+      return msg.say(`You do not have permission to use this command ${msg.member},\n`
+        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
+    }
+
     const guildRepo = getRepository(Guild);
     const itemsRepo = getRepository(ItemMeta);
 

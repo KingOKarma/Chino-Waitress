@@ -6,6 +6,7 @@ import { CONFIG } from '../../bot/globals';
 import { Inventory } from '../../entity/inventory';
 // Import { ItemMeta } from "../../entity/item";
 import { User } from '../../entity/user';
+import { checkRoles } from '../../bot/utils/utils';
 
 // Creates a new class (being the command) extending off of the commando client
 export default class UseItemCommand extends commando.Command {
@@ -41,6 +42,12 @@ export default class UseItemCommand extends commando.Command {
     msg: commando.CommandoMessage,
     { itemName }: {itemName: string; },
   ): Promise<Message | Message[]> {
+    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+    if (!perms) {
+      return msg.say(`You do not have permission to use this command ${msg.member},\n`
+        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
+    }
+
     const userRepo = getRepository(User);
     const invRepo = getRepository(Inventory);
 

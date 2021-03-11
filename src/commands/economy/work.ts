@@ -5,6 +5,7 @@ import ms from 'ms';
 import { CONFIG } from '../../bot/globals';
 import { Guild } from '../../entity/guild';
 import { User } from '../../entity/user';
+import { checkRoles } from '../../bot/utils/utils';
 
 const timeOut = new Map();
 const devs = CONFIG.owners;
@@ -27,6 +28,12 @@ export default class WorkCommand extends commando.Command {
   public async run(
     msg: commando.CommandoMessage,
   ): Promise<Message | Message[]> {
+    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+    if (!perms) {
+      return msg.say(`You do not have permission to use this command ${msg.member},\n`
+        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
+    }
+
     const userRepo = getRepository(User);
     const guildRepo = getRepository(Guild);
 

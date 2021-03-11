@@ -3,7 +3,7 @@ import { Message, MessageEmbed } from 'discord.js';
 import { getRepository } from 'typeorm';
 import { CONFIG } from '../../bot/globals';
 import { User } from '../../entity/user';
-import { userpaginate } from '../../bot/utils/utils';
+import { checkRoles, userpaginate } from '../../bot/utils/utils';
 
 export default class LeaderboardCommand extends commando.Command {
   public constructor(client: commando.CommandoClient) {
@@ -36,6 +36,12 @@ export default class LeaderboardCommand extends commando.Command {
     msg: commando.CommandoMessage,
     { page }: { page: number; },
   ): Promise<Message | Message[]> {
+    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+    if (!perms) {
+      return msg.say(`You do not have permission to use this command ${msg.member},\n`
+        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
+    }
+
     const userRepo = getRepository(User);
 
     if (msg.guild === null) {

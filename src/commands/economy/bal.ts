@@ -2,7 +2,8 @@ import * as commando from 'discord.js-commando';
 import { Message, MessageEmbed } from 'discord.js';
 import { getRepository } from 'typeorm';
 import { User } from '../../entity/user';
-import { getMember } from '../../bot/utils/utils';
+import { checkRoles, getMember } from '../../bot/utils/utils';
+import { CONFIG } from '../../bot/globals';
 
 // Creates a new class (being the command) extending off of the commando client
 export default class BalCommand extends commando.Command {
@@ -39,6 +40,12 @@ export default class BalCommand extends commando.Command {
     msg: commando.CommandoMessage,
     { memberID }: {memberID: string; },
   ): Promise<Message | Message[]> {
+    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+    if (!perms) {
+      return msg.say(`You do not have permission to use this command ${msg.member},\n`
+        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
+    }
+
     const userRepo = getRepository(User);
 
     if (msg.guild === null) {
