@@ -1,6 +1,6 @@
 import { Message, MessageEmbed } from "discord.js";
 import { CommandoMessage } from "discord.js-commando";
-import Config from "../config";
+import Storage from "../storage";
 import { getRole } from "./utils";
 
 /**
@@ -40,7 +40,7 @@ export async function addRole(
 
     // Otherwise finally add it to the list
     array.push(roleID);
-    Config.saveConfig();
+    Storage.saveConfig();
 
     return msg.say(
         `I have added the role \`${role.name}\` to the list! ✅`
@@ -83,7 +83,7 @@ export async function removeRole(
 
     // Removes the role from the array with the index number
     array.splice(roleIndex, 1);
-    Config.saveConfig();
+    Storage.saveConfig();
 
     return msg.say(
         `I have removed the role \`${role.name} \` from the list ✅`

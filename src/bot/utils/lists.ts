@@ -1,7 +1,7 @@
 import { CONFIG, STORAGE } from "../globals";
 import { Message, MessageEmbed } from "discord.js";
 import { CommandoMessage } from "discord.js-commando";
-import Config from "../config";
+import Storage from "../storage";
 
 /**
  * Works the same as addRole() but adds a string instead
@@ -31,7 +31,7 @@ export async function addList(
 
     // Otherwise finally add it to the list
     array.push(string);
-    Config.saveConfig();
+    Storage.saveConfig();
 
     return msg.say(
         `I have added the role \`${string}\` to the list! ✅`
@@ -73,7 +73,7 @@ export async function removeList(
     const findString = array.indexOf(string);
 
     array.splice(findString, 1);
-    Config.saveConfig();
+    Storage.saveConfig();
 
     return msg.say(
         `I have removed the choice\n\`${string}\` from the list ✅`
