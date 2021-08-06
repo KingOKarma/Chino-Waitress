@@ -1,47 +1,41 @@
-import { Message } from 'discord.js';
-import * as commando from 'discord.js-commando';
+import * as commando from "discord.js-commando";
+import { Message } from "discord.js";
 
 // Creates a new class (being the command) extending off of the commando client
-export default class sayCommand extends commando.Command {
-  constructor(client: commando.CommandoClient) {
-    super(client, {
-      name: 'say',
-      // Creates aliases
-      aliases: ['s', 'sentence'],
-      // This is the group the command is put in
-      group: 'boosters',
-      // This is the name of set within the group (most people keep this the same)
-      memberName: 'say',
-      description: 'I can say whatever the user wants!',
-      // Ratelimits the command usage to 3 every 5 seconds
-      throttling: {
-        usages: 3,
-        duration: 5,
-      },
-      // Checks if bot has delete message perms
-      clientPermissions: ['MANAGE_MESSAGES'],
-      userPermissions: ['MANAGE_MESSAGES'],
-      // Makes commands only avalabie within the guild
-      guildOnly: true,
-      // These are your arguments
-      args: [
-        {
-          key: 'args1',
-          prompt: 'Give me something good to say!',
-          type: 'string',
-        },
-      ],
-    });
-  }
+export default class SayCommand extends commando.Command {
+    public constructor(client: commando.CommandoClient) {
+        super(client, {
+            aliases: ["s", "sentence"],
+            args: [
+                {
+                    key: "args1",
+                    prompt: "Give me something good to say!",
+                    type: "string"
+                }
+            ],
 
-  // Now to run the actual command, the run() parameters need to be defiend (by types and names)
-  public async run(
-    msg: commando.CommandoMessage,
-    { args1 }: { args1: string },
-  ): Promise<Message | Message[]> {
+            clientPermissions: ["MANAGE_MESSAGES"],
+            description: "I can say whatever the user wants!",
+            group: "boosters",
+            guildOnly: true,
+            memberName: "say",
+            name: "say",
+            throttling: {
+                duration: 5,
+                usages: 3
+            },
+            userPermissions: ["MANAGE_MESSAGES"]
+        });
+    }
+
+    // Now to run the actual command, the run() parameters need to be defiend (by types and names)
+    public async run(
+        msg: commando.CommandoMessage,
+        { args1 }: { args1: string; }
+    ): Promise<Message | Message[]> {
     // Deletes command usage
-    msg.delete();
-    // Responds with whatever the user has said.
-    return msg.say(args1);
-  }
+        await msg.delete();
+        // Responds with whatever the user has said.
+        return msg.say(args1);
+    }
 }

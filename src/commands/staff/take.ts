@@ -1,81 +1,82 @@
 /* eslint-disable camelcase */
-import * as commando from 'discord.js-commando';
 import {
-} from '../../bot/utils/roles';
-import { Message, MessageEmbed } from 'discord.js';
-import { getRepository } from 'typeorm';
-import { rolePerms } from '../../bot/globals';
-import { User } from '../../entity/user';
-import { getMember } from '../../bot/utils/utils';
+} from "../../bot/utils/roles";
+import * as commando from "discord.js-commando";
+import { Message, MessageEmbed } from "discord.js";
+import { User } from "../../entity/user";
+import { getMember } from "../../bot/utils/utils";
+import { getRepository } from "typeorm";
+import { rolePerms } from "../../bot/globals";
 
-export default class colourListCommand extends commando.Command {
-  constructor(client: commando.CommandoClient) {
-    super(client, {
-      name: 'take',
-      group: 'staff',
-      memberName: 'take',
-      description: 'takes money from a user',
-      clientPermissions: rolePerms,
-      userPermissions: rolePerms,
-      throttling: {
-        usages: 3,
-        duration: 5,
-      },
-      guildOnly: true,
-      args: [
-        {
-          key: 'memberID',
-          prompt: 'The User you are taking from',
-          type: 'string',
-        },
-        {
-          key: 'amount',
-          prompt: 'How much are you taking from the user?',
-          type: 'integer',
-          validate: (amount: number) => amount >= 0,
-          error: 'Please only use a number for the price',
-        },
-      ],
-    });
-  }
+export default class StaffTakeCommand extends commando.Command {
+    public constructor(client: commando.CommandoClient) {
+        super(client, {
+            args: [
+                {
+                    key: "memberID",
+                    prompt: "The User you are taking from",
+                    type: "string"
+                },
+                {
+                    error: "Please only use a number for the price",
+                    key: "amount",
+                    prompt: "How much are you taking from the user?",
+                    type: "integer",
+                    validate: (amount: number): boolean => amount >= 0
+                }
+            ],
 
-  public async run(
-    msg: commando.CommandoMessage,
-    { memberID, amount }: {
-      memberID: string,
-          amount: number,
-         },
-  ): Promise<Message | Message[]> {
-    const userRepo = getRepository(User);
-    let member = await getMember(memberID, msg.guild);
-
-    if (member === null) {
-      member = msg.member;
+            clientPermissions: rolePerms,
+            description: "takes money from a user",
+            group: "staff",
+            guildOnly: true,
+            memberName: "take",
+            name: "take",
+            throttling: {
+                duration: 5,
+                usages: 3
+            },
+            userPermissions: rolePerms
+        });
     }
 
-    let user = await userRepo.findOne({ serverId: msg.guild.id, uid: member.user.id });
+    public async run(
+        msg: commando.CommandoMessage,
+        { memberID, amount }: {
+            amount: number;
+            memberID: string;
+        }
+    ): Promise<Message | Message[]> {
+        const userRepo = getRepository(User);
+        let member = await getMember(memberID, msg.guild);
 
-    if (!user) {
-      const newUser = new User();
-      newUser.uid = member.user.id;
-      newUser.serverId = member.guild.id;
-      newUser.avatar = member.user.displayAvatarURL({ dynamic: true });
-      newUser.tag = member.user.tag;
-      newUser.balance = 1;
-      user = newUser;
+        if (member === null) {
+            ({ member } = msg);
+        }
+
+        let user = await userRepo.findOne({ serverId: msg.guild.id, uid: member.user.id });
+
+        if (!user) {
+            const newUser = new User();
+            newUser.uid = member.user.id;
+            newUser.serverId = member.guild.id;
+            newUser.avatar = member.user.displayAvatarURL({ dynamic: true });
+            newUser.tag = member.user.tag;
+            newUser.balance = 1;
+            user = newUser;
+        }
+
+        let userBal = user.balance;
+        userBal -= amount;
+
+        user.balance -= amount;
+        await userRepo.save(user);
+        const embed = new MessageEmbed()
+            .setAuthor(member.user.tag, member.user.displayAvatarURL({ dynamic: true }))
+            .setTitle("User Take")
+            .setDescription(`I have taken **${amount}🍩** from \`${member.user.tag}\` they now have **${userBal}**🍩 Donuts`)
+            .setFooter(`Taken by ${msg.author.tag}`)
+            .setTimestamp();
+        return msg.say(embed);
     }
-
-    let userBal = user.balance;
-    userBal -= amount;
-
-    user.balance -= amount;
-    userRepo.save(user);
-    const embed = new MessageEmbed()
-      .setAuthor(member.user.tag, member.user.displayAvatarURL({ dynamic: true }))
-      .setTitle('User Take')
-      .setDescription(`I have taken **${amount}🍩** from \`${member.user.tag}\` they now have **${userBal}**🍩 Donuts`)
-      .setFooter(`Taken by ${msg.author.tag}`)
-      .setTimestamp();
-    return msg.say(embed);
-  }
 }

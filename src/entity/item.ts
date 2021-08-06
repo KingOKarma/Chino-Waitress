@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/explicit-member-accessibility */
 /* eslint-disable @typescript-eslint/member-ordering */
 import {
-  Column, Entity, ManyToOne, PrimaryGeneratedColumn,
-} from 'typeorm';
+    Column, Entity, ManyToOne, PrimaryGeneratedColumn
+} from "typeorm";
 
-import { Guild } from './guild';
+import { Guild } from "./guild";
 @Entity()
 export class ItemMeta {
     @PrimaryGeneratedColumn()

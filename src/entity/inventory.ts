@@ -1,24 +1,24 @@
 /* eslint-disable @typescript-eslint/explicit-member-accessibility */
 /* eslint-disable @typescript-eslint/member-ordering */
 import {
-  Column, Entity, ManyToOne, PrimaryGeneratedColumn,
-} from 'typeorm';
-import { User } from './user';
+    Column, Entity, ManyToOne, PrimaryGeneratedColumn
+} from "typeorm";
+import { User } from "./user";
 
 @Entity()
 export class Inventory {
-  @PrimaryGeneratedColumn()
-  id!: number;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-  @Column()
-  uid!: string;
+    @Column()
+    uid!: string;
 
-  @Column()
-  serverid!: string;
+    @Column()
+    serverid!: string;
 
-  @ManyToOne(() => User, (user) => user.inventory)
-  user!: User;
+    @ManyToOne(() => User, (user) => user.inventory)
+    user!: User;
 
-  @Column('simple-json')
-  items!: string[];
+    @Column("simple-json")
+    items!: string[];
 }

@@ -2,10 +2,10 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import {
-  Client, Emoji, Guild, GuildMember, Role, User,
-} from 'discord.js';
-import { ItemMeta } from '../../entity/item';
-import { User as entityUser } from '../../entity/user';
+    Client, Emoji, Guild, GuildMember, Role, User
+} from "discord.js";
+import { ItemMeta } from "../../entity/item";
+import { User as entityUser } from "../../entity/user";
 
 /**
  * Used to check role mentions/ID's if they are roles
@@ -14,20 +14,20 @@ import { User as entityUser } from '../../entity/user';
  * @returns {Role} A Role instance or undefined
  */
 export function getRole(rid: string, guild: Guild): Role | undefined {
-  let ridParsed = rid;
-  // Check if a role was tagged or not. If the role was tagged remove the
-  // Tag from rid.
-  if (rid.startsWith('<@&') && rid.endsWith('>')) {
-    const re = new RegExp('[<@&>]', 'g');
-    ridParsed = rid.replace(re, '');
-  }
-  // Try recovering the role and report if it was successful or not.
-  try {
-    return guild.roles.cache.get(ridParsed);
-  } catch (e) {
-    console.log(`Role not found because ${e}`);
-    return undefined;
-  }
+    let ridParsed = rid;
+    // Check if a role was tagged or not. If the role was tagged remove the
+    // Tag from rid.
+    if (rid.startsWith("<@&") && rid.endsWith(">")) {
+        const re = new RegExp("[<@&>]", "g");
+        ridParsed = rid.replace(re, "");
+    }
+    // Try recovering the role and report if it was successful or not.
+    try {
+        return guild.roles.cache.get(ridParsed);
+    } catch (e) {
+        console.log(`Role not found because ${e}`);
+        return undefined;
+    }
 }
 
 /**
@@ -37,24 +37,24 @@ export function getRole(rid: string, guild: Guild): Role | undefined {
  * @returns {GuildMember} A Member instance from a server
  */
 export async function getMember(uid: string, guild: Guild): Promise<GuildMember | null> {
-  let uidParsed = uid;
-  // Check if a member was tagged or not. If the member was tagged remove the
-  // Tag from uid.
-  if (uid.startsWith('<@') && uid.endsWith('>')) {
-    const re = new RegExp('[<@!>]', 'g');
-    uidParsed = uid.replace(re, '');
-  }
+    let uidParsed = uid;
+    // Check if a member was tagged or not. If the member was tagged remove the
+    // Tag from uid.
+    if (uid.startsWith("<@") && uid.endsWith(">")) {
+        const re = new RegExp("[<@!>]", "g");
+        uidParsed = uid.replace(re, "");
+    }
 
-  if (uidParsed.length !== 18) {
-    return null;
-  }
-  // Try recovering the role and report if it was successful or not.
-  try {
-    return await guild.members.fetch(uidParsed);
-  } catch (e) {
-    console.log(`Member not found because ${e}`);
-    return null;
-  }
+    if (uidParsed.length !== 18) {
+        return null;
+    }
+    // Try recovering the role and report if it was successful or not.
+    try {
+        return await guild.members.fetch(uidParsed);
+    } catch (e) {
+        console.log(`Member not found because ${e}`);
+        return null;
+    }
 }
 
 /**
@@ -64,20 +64,20 @@ export async function getMember(uid: string, guild: Guild): Promise<GuildMember 
  * @returns {GuildMember} A Member instance from a server
  */
 export async function getUser(uid: string, client: Client): Promise<User | undefined> {
-  let uidParsed = uid;
-  // Check if a member was tagged or not. If the member was tagged remove the
-  // Tag from uid.
-  if (uid.startsWith('<@') && uid.endsWith('>')) {
-    const re = new RegExp('[<@!>]', 'g');
-    uidParsed = uid.replace(re, '');
-  }
-  // Try recovering the role and report if it was successful or not.
-  try {
-    return await client.users.fetch(uidParsed);
-  } catch (e) {
-    console.log(`User not found because ${e}`);
-    return undefined;
-  }
+    let uidParsed = uid;
+    // Check if a member was tagged or not. If the member was tagged remove the
+    // Tag from uid.
+    if (uid.startsWith("<@") && uid.endsWith(">")) {
+        const re = new RegExp("[<@!>]", "g");
+        uidParsed = uid.replace(re, "");
+    }
+    // Try recovering the role and report if it was successful or not.
+    try {
+        return await client.users.fetch(uidParsed);
+    } catch (e) {
+        console.log(`User not found because ${e}`);
+        return undefined;
+    }
 }
 
 /**
@@ -87,18 +87,18 @@ export async function getUser(uid: string, client: Client): Promise<User | undef
  * @returns {boolean} true or false
  */
 export function checkRoles(
-  member: GuildMember,
-  array: string[],
+    member: GuildMember,
+    array: string[]
 ): boolean {
-  const check = member.roles.cache.map((role) => role.id);
+    const check = member.roles.cache.map((role) => role.id);
 
-  // Loop over member roles to check if they have whitelisted roles
-  const foundList = check.some((roleList) => array.includes(roleList));
+    // Loop over member roles to check if they have whitelisted roles
+    const foundList = check.some((roleList) => array.includes(roleList));
 
-  if (foundList) {
-    return true;
-  }
-  return false;
+    if (foundList) {
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -108,26 +108,26 @@ export function checkRoles(
  * @returns {Emoji | undefined} Either returns the emote or undefiend
  */
 export function getEmote(emoteString: string, client: Client): Emoji | undefined {
-  // eslint-disable-next-line no-useless-escape
-  if (!emoteString.match(/\:(.*?)\>/g)) {
+    // eslint-disable-next-line no-useless-escape
+    if (!emoteString.match(/\:(.*?)\>/g)) {
+        return undefined;
+    }
+
+    // eslint-disable-next-line no-useless-escape
+    const findEmote = emoteString.slice(3).match(/\:.*?\>/g);
+    if (findEmote === null) {
+        return undefined;
+    }
+
+    const theMatch = findEmote[0].slice(1, -1);
+
+    const emote = client.emojis.cache.get(theMatch);
+
+    if (emote) {
+        return emote;
+    }
+
     return undefined;
-  }
-
-  // eslint-disable-next-line no-useless-escape
-  const findEmote = emoteString.slice(3).match(/\:.*?\>/g);
-  if (findEmote === null) {
-    return undefined;
-  }
-
-  const theMatch = findEmote[0].slice(1, -1);
-
-  const emote = client.emojis.cache.get(theMatch);
-
-  if (emote) {
-    return emote;
-  }
-
-  return undefined;
 }
 
 /**
@@ -138,7 +138,7 @@ export function getEmote(emoteString: string, client: Client): Emoji | undefined
  * @returns {Array} an array
  */
 export function userpaginate(array: entityUser[], pageSize: number, pageNumber: number): entityUser[] {
-  return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+    return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 }
 
 /**
@@ -149,7 +149,7 @@ export function userpaginate(array: entityUser[], pageSize: number, pageNumber: 
  * @returns {Array} an array
  */
 export function shoppaginate(array: ItemMeta[], pageSize: number, pageNumber: number): ItemMeta[] {
-  return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+    return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 }
 
 /**
@@ -160,7 +160,7 @@ export function shoppaginate(array: ItemMeta[], pageSize: number, pageNumber: nu
  * @returns {Array} an array
  */
 export function stringpaginate(array: string[], pageSize: number, pageNumber: number): string[] {
-  return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+    return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
 }
 
 /**
@@ -168,11 +168,11 @@ export function stringpaginate(array: string[], pageSize: number, pageNumber: nu
  * @param {number} milliseconds The time in mlliseconds to wait
  */
 export function sleep(milliseconds: number): void {
-  const date = Date.now();
-  let currentDate = null;
-  do {
-    currentDate = Date.now();
-  } while (currentDate - date < milliseconds);
+    const date = Date.now();
+    let currentDate = null;
+    do {
+        currentDate = Date.now();
+    } while (currentDate - date < milliseconds);
 }
 
 /**
@@ -182,7 +182,7 @@ export function sleep(milliseconds: number): void {
  * @returns {number} a random number between max and min
  */
 export function ranNum(max: number, min: number): number {
-  return Math.floor(Math.random() * max + min);
+    return Math.floor(Math.random() * max + min);
 }
 
 /**
@@ -191,5 +191,5 @@ export function ranNum(max: number, min: number): number {
  * @returns {unknown} A random item from an array
  */
 export function ranArray(array: unknown[]): unknown {
-  return array[Math.floor(Math.random() * array.length)];
+    return array[Math.floor(Math.random() * array.length)];
 }

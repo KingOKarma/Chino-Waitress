@@ -1,27 +1,27 @@
 /* eslint-disable @typescript-eslint/explicit-member-accessibility */
 /* eslint-disable @typescript-eslint/member-ordering */
 import {
-  Column, Entity, OneToMany, PrimaryGeneratedColumn,
-} from 'typeorm';
-import { ItemMeta } from './item';
+    Column, Entity, OneToMany, PrimaryGeneratedColumn
+} from "typeorm";
+import { ItemMeta } from "./item";
 
 @Entity()
 export class Guild {
-  @PrimaryGeneratedColumn()
-  id!: number;
+    @PrimaryGeneratedColumn()
+    id!: number;
 
-  @Column()
-  serverid!: string;
+    @Column()
+    serverid!: string;
 
-  @Column()
-  name!: string;
+    @Column()
+    name!: string;
 
-  @Column({ default: false })
-  boosted!: boolean;
+    @Column({ default: false })
+    boosted!: boolean;
 
-  @Column({ nullable: true })
-  prefix!: string;
+    @Column({ nullable: true })
+    prefix!: string;
 
-  @OneToMany(() => ItemMeta, (itemMeta) => itemMeta.guild)
-  shop!: ItemMeta[];
+    @OneToMany(() => ItemMeta, (itemMeta) => itemMeta.guild)
+    shop!: ItemMeta[];
 }
