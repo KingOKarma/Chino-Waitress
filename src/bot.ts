@@ -21,11 +21,16 @@ async function main(): Promise<void> {
     bot.on("message", onMessage);
 
     // Registers all groups/commands/etc
-    bot.registry.registerGroups([
-        ["boosters"],
-        ["staff"],
-        ["economy"]
-    ]).registerDefaults()
+    bot.registry.registerDefaultTypes()
+        .registerGroups([
+            ["boosters", "Boosters - Commands for all boosters to use freely"],
+            ["staff", "Staff - These commands may only be used by staff members"],
+            ["economy", "Economy - These Commands are focused on the economy side of things"]
+        ]).registerDefaultGroups()
+        .registerDefaultCommands({
+            unknownCommand: false
+        })
+
         .registerCommandsIn(
             path.join(__dirname, "commands")
         );
