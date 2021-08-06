@@ -1,5 +1,5 @@
+import { CONFIG, STORAGE } from "../globals";
 import { Message, MessageEmbed } from "discord.js";
-import { CONFIG } from "../globals";
 import { CommandoMessage } from "discord.js-commando";
 import Config from "../config";
 
@@ -63,7 +63,7 @@ export async function removeList(
     }
     // Checks the location in the array for the role
     const stringIndex = Number(number) - 1;
-    const string = CONFIG.workResponses[stringIndex] as string | undefined;
+    const string = STORAGE.workResponses[stringIndex] as string | undefined;
 
     if (string === undefined) {
         return msg.say("That choice does not exists");

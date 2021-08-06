@@ -3,3 +3,4 @@ build
 node_modules
 ormconfig.yml
 package-lock.json
+storage.yml

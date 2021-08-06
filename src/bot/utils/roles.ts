@@ -106,7 +106,7 @@ export async function listRoles(
 ): Promise<Message | Message[]> {
     if (!array.length) {
         return msg.say(
-            `The list is currently emtpy! use ${array}add <role>`
+            `The list is currently emtpy! use ${title}add <role>`
         + "to add a role to the list!"
         );
     }

@@ -1,5 +1,5 @@
 import { Client, GuildMember, Message } from "discord.js";
-import { CONFIG } from "./globals";
+import { STORAGE } from "./globals";
 import { User } from "../entity/user";
 import { checkRoles } from "./utils/utils";
 import { Guild as entityGuild } from "../entity/guild";
@@ -44,9 +44,9 @@ export async function onMemberUpdate(_: GuildMember, mem: GuildMember): Promise<
     const check = mem.roles.cache.map((role) => role.id);
 
     // Loop over member roles to check if they have whitelisted roles
-    const foundWhitelist = check.some((hasRole) => CONFIG.allowedRoles.includes(hasRole));
+    const foundWhitelist = check.some((hasRole) => STORAGE.allowedRoles.includes(hasRole));
 
-    const channel = mem.guild.channels.cache.get(CONFIG.boosterChannel);
+    const channel = mem.guild.channels.cache.get(STORAGE.boosterChannel);
 
     if (channel === undefined) {
         return;
@@ -54,10 +54,10 @@ export async function onMemberUpdate(_: GuildMember, mem: GuildMember): Promise<
 
     if (!foundWhitelist) {
     // Loop over member roles to check if they have colour roles
-        const foundColourRole = check.some((colorRoleId) => CONFIG.colourRoles.includes(colorRoleId));
+        const foundColourRole = check.some((colorRoleId) => STORAGE.colourRoles.includes(colorRoleId));
 
         if (foundColourRole) {
-            CONFIG.colourRoles.forEach(async (role) => {
+            STORAGE.colourRoles.forEach(async (role) => {
                 const memberRoles = mem.roles.cache;
                 const invalidRole = memberRoles.get(role);
                 if (invalidRole) {
@@ -71,12 +71,12 @@ export async function onMemberUpdate(_: GuildMember, mem: GuildMember): Promise<
         }
     }
 
-    if (check.includes(CONFIG.mutedRole)) {
+    if (check.includes(STORAGE.mutedRole)) {
         // eslint-disable-next-line @typescript-eslint/naming-convention
         await channel.createOverwrite(mem, { SEND_MESSAGES: false }, "User Was muted");
     }
 
-    if (!check.includes(CONFIG.mutedRole)) {
+    if (!check.includes(STORAGE.mutedRole)) {
         const memberPerms = channel.permissionOverwrites.get(mem.user.id);
 
         if (memberPerms === undefined) {
@@ -98,7 +98,7 @@ export async function onMessage(msg: Message): Promise<void> {
     if (msg.guild === null) return undefined;
     if (msg.member === null) return undefined;
 
-    const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+    const perms = checkRoles(msg.member, STORAGE.allowedRoles);
     if (!perms) {
         return undefined;
     }

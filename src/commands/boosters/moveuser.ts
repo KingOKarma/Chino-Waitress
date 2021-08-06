@@ -1,34 +1,31 @@
 import * as commando from "discord.js-commando";
-import { CONFIG, STORAGE } from "../../bot/globals";
+import { CONFIG, STORAGE, rolePerms } from "../../bot/globals";
 import { Message, MessageEmbed } from "discord.js";
 import { checkRoles, getMember } from "../../bot/utils/utils";
 
 // Creates a new class (being the command) extending off of the commando client
-export default class UserInfoCommand extends commando.Command {
+export default class MoveCommand extends commando.Command {
     public constructor(client: commando.CommandoClient) {
         super(client, {
-            aliases: ["whois", "member"],
+            aliases: ["vc", "move"],
             args: [
                 {
                     key: "memberID",
-                    prompt: "I need a member mention, or ID",
+                    prompt: "Which user would you like to drag into Boosters VC",
                     type: "string"
                 }
             ],
 
-            clientPermissions: ["MANAGE_MESSAGES"],
-            description: "I'll give you some info on any user",
+            clientPermissions: rolePerms,
+            description: "Allows boosters to ask normal users if they would like to be moved into the Boosters VC!",
             group: "boosters",
             guildOnly: true,
-            memberName: "userinfo",
-            name: "userinfo",
-
+            memberName: "moveuser",
+            name: "moveuser",
             throttling: {
                 duration: 5,
                 usages: 3
-            },
-
-            userPermissions: ["MANAGE_MESSAGES"]
+            }
         });
     }
 
@@ -42,17 +39,18 @@ export default class UserInfoCommand extends commando.Command {
             return msg.say(`You do not have permission to use this command ${msg.member},\n`
         + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
         }
-        // Responds with whatever the user has said.
+
         const member = await getMember(memberID, msg.guild);
 
         if (member === null) {
-            return msg.reply("Sorry I cannot find that user!");
+            return msg.say("I Could not find that user");
         }
 
         const embed = new MessageEmbed()
-            .setAuthor(member.user.tag, member.user.displayAvatarURL({ dynamic: true }))
-            .setTitle("Info")
-            .setDescription(`Created account at ${member.user.createdAt.toLocaleString("en-US")}`);
+            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
+            .setTitle("You have just Claimed the  Role")
+            .setDescription(`You can remove the with \`${CONFIG.prefix}remove <number>\``)
+            .setFooter("You can also get these roles by becoming a booster today!");
 
         return msg.say(embed);
     }

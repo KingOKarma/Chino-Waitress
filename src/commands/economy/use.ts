@@ -1,6 +1,6 @@
 import * as commando from "discord.js-commando";
+import { CONFIG, STORAGE } from "../../bot/globals";
 import { Message, MessageEmbed } from "discord.js";
-import { CONFIG } from "../../bot/globals";
 import { Inventory } from "../../entity/inventory";
 import { User } from "../../entity/user";
 import { checkRoles } from "../../bot/utils/utils";
@@ -40,7 +40,7 @@ export default class UseItemCommand extends commando.Command {
         msg: commando.CommandoMessage,
         { itemName }: {itemName: string; }
     ): Promise<Message | Message[]> {
-        const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+        const perms = checkRoles(msg.member, STORAGE.allowedRoles);
         if (!perms) {
             return msg.say(`You do not have permission to use this command ${msg.member},\n`
         + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);

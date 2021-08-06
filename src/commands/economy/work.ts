@@ -1,6 +1,6 @@
 import * as commando from "discord.js-commando";
+import { CONFIG, STORAGE } from "../../bot/globals";
 import { Message, MessageEmbed } from "discord.js";
-import { CONFIG } from "../../bot/globals";
 import { Guild } from "../../entity/guild";
 import { User } from "../../entity/user";
 import { checkRoles } from "../../bot/utils/utils";
@@ -28,7 +28,7 @@ export default class WorkCommand extends commando.Command {
     public async run(
         msg: commando.CommandoMessage
     ): Promise<Message | Message[]> {
-        const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+        const perms = checkRoles(msg.member, STORAGE.allowedRoles);
         if (!perms) {
             return msg.say(`You do not have permission to use this command ${msg.member},\n`
         + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
@@ -86,7 +86,7 @@ export default class WorkCommand extends commando.Command {
             // 6 hours
         }, HOURS * 1000);
 
-        let response = CONFIG.workResponses[Math.floor(Math.random() * CONFIG.workResponses.length)];
+        let response = STORAGE.workResponses[Math.floor(Math.random() * STORAGE.workResponses.length)];
 
         const bal = `**${earn}🍩**`;
 

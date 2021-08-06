@@ -1,7 +1,7 @@
 import * as commando from "discord.js-commando";
+import { CONFIG, STORAGE } from "../../bot/globals";
 import { Message, MessageEmbed } from "discord.js";
 import { checkRoles, userpaginate } from "../../bot/utils/utils";
-import { CONFIG } from "../../bot/globals";
 import { User } from "../../entity/user";
 import { getRepository } from "typeorm";
 
@@ -36,7 +36,7 @@ export default class LeaderboardCommand extends commando.Command {
         msg: commando.CommandoMessage,
         { page }: { page: number; }
     ): Promise<Message | Message[]> {
-        const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+        const perms = checkRoles(msg.member, STORAGE.allowedRoles);
         if (!perms) {
             return msg.say(`You do not have permission to use this command ${msg.member},\n`
         + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);

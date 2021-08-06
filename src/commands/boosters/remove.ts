@@ -1,5 +1,5 @@
 import * as commando from "discord.js-commando";
-import { CONFIG, rolePerms } from "../../bot/globals";
+import { CONFIG, STORAGE, rolePerms } from "../../bot/globals";
 import { Message, MessageEmbed } from "discord.js";
 import { checkRoles, getRole } from "../../bot/utils/utils";
 
@@ -36,7 +36,7 @@ export default class RemoveCommand extends commando.Command {
         msg: commando.CommandoMessage,
         { number }: { number: string; }
     ): Promise<Message | Message[]> {
-        const perms = checkRoles(msg.member, CONFIG.allowedRoles);
+        const perms = checkRoles(msg.member, STORAGE.allowedRoles);
         if (!perms) {
             return msg.say(`You do not have permission to use this command ${msg.member},\n`
         + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
@@ -44,7 +44,7 @@ export default class RemoveCommand extends commando.Command {
 
         const checkNum = new RegExp("/^[0-9]+$/");
         if (!checkNum.exec(number)) {
-            const roleList = CONFIG.colourRoles.map((list, index) => `${index + 1} - <@&${list}>\n`);
+            const roleList = STORAGE.colourRoles.map((list, index) => `${index + 1} - <@&${list}>\n`);
 
             const embed = new MessageEmbed()
                 .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
@@ -55,7 +55,7 @@ export default class RemoveCommand extends commando.Command {
             return msg.say(embed);
         }
         const roleIndex = Number(number) - 1;
-        const role = CONFIG.colourRoles[roleIndex];
+        const role = STORAGE.colourRoles[roleIndex];
         const roleInstance = getRole(role, msg.guild);
 
         if (roleInstance === undefined) {

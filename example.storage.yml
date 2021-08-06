@@ -1,0 +1,12 @@
+allowedRoles:
+  - List of allowed roles IDS for booster commands
+
+colourRoles:
+  - List of Role IDS for booster colours
+
+boosterChannel: Channel id for the booster channel
+
+mutedRole: Muted role ID for the server
+
+workResponses:
+  - Any responses when working

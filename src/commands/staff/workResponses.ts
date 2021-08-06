@@ -1,5 +1,5 @@
 import * as commando from "discord.js-commando";
-import { CONFIG, rolePerms } from "../../bot/globals";
+import { STORAGE, rolePerms } from "../../bot/globals";
 import {
     addList,
     listList,
@@ -48,13 +48,13 @@ export default class BoosterWorkResponse extends commando.Command {
     ): Promise<Message | Message[]> {
         switch (choice.toLowerCase()) {
             case "add":
-                return addList(msg, string, CONFIG.workResponses, []);
+                return addList(msg, string, STORAGE.workResponses, []);
 
             case "remove":
-                return removeList(msg, string, CONFIG.workResponses);
+                return removeList(msg, string, STORAGE.workResponses);
 
             case "list":
-                return listList(msg, CONFIG.workResponses, "Work Responses");
+                return listList(msg, STORAGE.workResponses, "Work Responses");
 
             default:
                 return msg.reply("Please give a choice `add <string>`, `remove <number>`, `list`");

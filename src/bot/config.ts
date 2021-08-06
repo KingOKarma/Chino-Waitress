@@ -22,32 +22,17 @@ import fs from "fs";
 export default class Config {
     private static readonly _configLocation = "./config.yml";
 
-    public readonly allowedRoles: string[];
-
-    public readonly boosterChannel: string;
-
-    public readonly colourRoles: string[];
-
-    public readonly mutedRole: string;
-
     public readonly owners: string[];
 
     public readonly prefix: string;
 
     public readonly token: string;
 
-    public readonly workResponses: string[];
-
 
     public constructor() {
-        this.allowedRoles = [""];
-        this.boosterChannel = "";
-        this.colourRoles = [""];
-        this.mutedRole = "";
         this.owners = [""];
         this.token = "";
         this.prefix = "";
-        this.workResponses = [""];
     }
 
     /**

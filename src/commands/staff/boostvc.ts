@@ -1,16 +1,11 @@
 import * as commando from "discord.js-commando";
 import { STORAGE, rolePerms } from "../../bot/globals";
-import {
-    addRole,
-    listRoles,
-    removeRole
-} from "../../bot/utils/roles";
+import { addVc, listVcs, removeVc } from "../../bot/utils/vcs";
 import { Message } from "discord.js";
 
-export default class ColourListCommand extends commando.Command {
+export default class BoosterListCommand extends commando.Command {
     public constructor(client: commando.CommandoClient) {
         super(client, {
-            aliases: ["colors", "color", "colour", "c"],
             args: [
                 {
                     default: "",
@@ -21,17 +16,18 @@ export default class ColourListCommand extends commando.Command {
                 },
                 {
                     default: "",
-                    key: "roleID",
-                    prompt: "I need a role to add/remove to/from",
+                    key: "vcID",
+                    prompt: "I need a VC ID to add/remove to/from",
                     type: "string"
                 }
             ],
+
             clientPermissions: rolePerms,
-            description: "Lets you decide to add, remove, or list the boosters colours roles",
+            description: "Lets you decide to add, remove, or list the boosters roles",
             group: "staff",
             guildOnly: true,
-            memberName: "colours",
-            name: "colours",
+            memberName: "boosters",
+            name: "boosters",
             throttling: {
                 duration: 5,
                 usages: 3
@@ -42,20 +38,20 @@ export default class ColourListCommand extends commando.Command {
 
     public async run(
         msg: commando.CommandoMessage,
-        { choice, roleID }: { choice: string; roleID: string; }
+        { choice, vcID }: { choice: string; vcID: string; }
     ): Promise<Message | Message[]> {
         switch (choice.toLowerCase()) {
             case "add":
-                return addRole(msg, roleID, STORAGE.colourRoles, STORAGE.allowedRoles);
+                return addVc(msg, vcID, STORAGE.allowedRoles);
 
             case "remove":
-                return removeRole(msg, roleID, STORAGE.colourRoles, STORAGE.allowedRoles);
+                return removeVc(msg, vcID, STORAGE.allowedRoles);
 
             case "list":
-                return listRoles(msg, STORAGE.colourRoles, "Booster Colour Roles");
+                return listVcs(msg, STORAGE.allowedRoles, "Booster Vcs");
 
             default:
-                return msg.reply("Please give a choice\n`add <role>`, `remove <role>`, `list`");
+                return msg.reply("Please give a choice\n`add <vc>`, `remove <vc>`, `list`");
         }
     }
 }

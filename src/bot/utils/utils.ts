@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/strict-boolean-expressions */
 /* eslint-disable @typescript-eslint/no-unnecessary-condition */
 import {
-    Client, Emoji, Guild, GuildMember, Role, User
+    Client, Emoji, Guild, GuildMember, Role, User, VoiceChannel
 } from "discord.js";
 import { ItemMeta } from "../../entity/item";
 import { User as entityUser } from "../../entity/user";
@@ -79,6 +79,19 @@ export async function getUser(uid: string, client: Client): Promise<User | undef
         return undefined;
     }
 }
+
+/**
+ * Used to check channel mentions/ID's if they are roles
+ * @param {string} rid The role mention/ID (Optional)
+ * @param {Guild} guild the Guild instance the of where the Role is from
+ * @returns {Role} A Role instance or undefined
+ */
+export function getVc(rid: string, guild: Guild): VoiceChannel | undefined {
+
+    return guild.channels.cache.get(rid) as VoiceChannel | undefined;
+
+}
+
 
 /**
  * Used to check if a user has at least one role from a list, returns true if found

@@ -1,5 +1,5 @@
 import * as commando from "discord.js-commando";
-import { CONFIG, rolePerms } from "../../bot/globals";
+import { STORAGE, rolePerms } from "../../bot/globals";
 import {
     addRole,
     listRoles,
@@ -47,13 +47,13 @@ export default class BoosterListCommand extends commando.Command {
     ): Promise<Message | Message[]> {
         switch (choice.toLowerCase()) {
             case "add":
-                return addRole(msg, roleID, CONFIG.allowedRoles, CONFIG.colourRoles);
+                return addRole(msg, roleID, STORAGE.allowedRoles, STORAGE.colourRoles);
 
             case "remove":
-                return removeRole(msg, roleID, CONFIG.allowedRoles, CONFIG.colourRoles);
+                return removeRole(msg, roleID, STORAGE.allowedRoles, STORAGE.colourRoles);
 
             case "list":
-                return listRoles(msg, CONFIG.allowedRoles, "Booster Roles");
+                return listRoles(msg, STORAGE.allowedRoles, "Booster Roles");
 
             default:
                 return msg.reply("Please give a choice\n`add <role>`, `remove <role>`, `list`");
