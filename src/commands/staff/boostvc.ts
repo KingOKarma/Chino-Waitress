@@ -26,8 +26,8 @@ export default class BoosterListCommand extends commando.Command {
             description: "Lets you decide to add, remove, or list the boosters roles",
             group: "staff",
             guildOnly: true,
-            memberName: "boosters",
-            name: "boosters",
+            memberName: "boostvc",
+            name: "boostvc",
             throttling: {
                 duration: 5,
                 usages: 3

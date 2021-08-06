@@ -46,6 +46,8 @@ export default class MoveCommand extends commando.Command {
             return msg.say("I Could not find that user");
         }
 
+        if (member.id === msg.author.id) return msg.say("Why would you move yourself into your own vc?");
+
         const boosterVC = STORAGE.boosterVcs.find((v) => v === msg.member.voice.channelID);
 
         if (boosterVC === undefined) {
