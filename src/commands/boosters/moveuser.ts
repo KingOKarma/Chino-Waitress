@@ -71,7 +71,7 @@ export default class MoveCommand extends commando.Command {
         await newMessage.react("❌");
 
         const filter = (reaction: MessageReaction, user: User ): boolean => {
-            return reaction.emoji.name === "✅" || reaction.emoji.name === "❌" && user.id === msg.author.id;
+            return reaction.emoji.name === "✅" && user.id === member.id || reaction.emoji.name === "❌" && user.id === member.id;
         };
 
 
@@ -83,6 +83,7 @@ export default class MoveCommand extends commando.Command {
                 const newcheck = msg.guild.channels.cache.get(member.voice.channelID ?? "000");
 
                 if (newcheck === undefined) {
+                    reactionCollector.stop();
                     return msg.say(`${user} Please ensure you are in a vc to be dragged from`);
                 }
 
