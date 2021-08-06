@@ -1,1 +1,0 @@
-tsc && node ./build/bot.js
