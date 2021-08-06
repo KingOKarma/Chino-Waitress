@@ -47,26 +47,22 @@ export async function removeVc(
     rid: string,
     array: string[]
 ): Promise<Message | Message[]> {
-    const vc = getVc(rid, msg.guild);
-    // If the first argument is the @everyone id or undefined return
-    if (vc === undefined) {
-        return msg.say("Please use the ID of a voice channel");
-    }
+    const vc = rid;
 
     // Checks if the role they want to add is already added
-    if (!array.includes(vc.id)) {
-        return msg.say(`\`${vc.name}\` is not on the list! ❌`);
+    if (!array.includes(vc)) {
+        return msg.say(`\`<#${vc}>\` is not on the list! ❌`);
     }
 
     // Checks the location in the array for the role
-    const roleIndex = array.indexOf(vc.id);
+    const roleIndex = array.indexOf(vc);
 
     // Removes the role from the array with the index number
     array.splice(roleIndex, 1);
     Storage.saveConfig();
 
     return msg.say(
-        `I have removed the vc \`${vc.name} \` from the list ✅`);
+        `I have removed the vc \`<#${vc}> \` from the list ✅`);
 }
 
 /**
