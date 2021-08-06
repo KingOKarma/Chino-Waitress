@@ -6,6 +6,9 @@ colourRoles:
 
 boosterChannel: Channel id for the booster channel
 
+boosterVcs:
+  - Array of channel ids for booster channels
+
 mutedRole: Muted role ID for the server
 
 workResponses:

@@ -1,6 +1,6 @@
 import * as commando from "discord.js-commando";
 import { CONFIG, STORAGE, rolePerms } from "../../bot/globals";
-import { Message, MessageEmbed } from "discord.js";
+import { Message, MessageEmbed, MessageReaction, User } from "discord.js";
 import { checkRoles, getMember } from "../../bot/utils/utils";
 
 // Creates a new class (being the command) extending off of the commando client
@@ -33,7 +33,7 @@ export default class MoveCommand extends commando.Command {
     public async run(
         msg: commando.CommandoMessage,
         { memberID }: { memberID: string; }
-    ): Promise<Message | Message[]> {
+    ): Promise<Message | Message[] | null> {
         const perms = checkRoles(msg.member, STORAGE.allowedRoles);
         if (!perms) {
             return msg.say(`You do not have permission to use this command ${msg.member},\n`
@@ -46,12 +46,66 @@ export default class MoveCommand extends commando.Command {
             return msg.say("I Could not find that user");
         }
 
-        const embed = new MessageEmbed()
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
-            .setTitle("You have just Claimed the  Role")
-            .setDescription(`You can remove the with \`${CONFIG.prefix}remove <number>\``)
-            .setFooter("You can also get these roles by becoming a booster today!");
+        const boosterVC = STORAGE.boosterVcs.find((v) => v === msg.member.voice.channelID);
 
-        return msg.say(embed);
+        if (boosterVC === undefined) {
+            return msg.say("Please make sure you are in one of the booster Voice Channels!");
+        }
+
+        const vc = msg.guild.channels.resolve(boosterVC);
+
+        if (vc === null)
+            return msg.say("There was an internal error please contact staff");
+
+        const otherVc = msg.guild.channels.cache.get(member.voice.channelID ?? "000");
+
+        if (otherVc === undefined) {
+            return msg.say(`${member.user.tag} is not in a VC to be dragged in from`);
+        }
+
+        const newMessage = await msg.channel.send(`${member}, Would you like to be dragged into ${vc.name} by ${msg.author}?`);
+
+        await newMessage.react("✅");
+        await newMessage.react("❌");
+
+        const filter = (reaction: MessageReaction, user: User ): boolean => {
+            return reaction.emoji.name === "✅" || reaction.emoji.name === "❌" && user.id === msg.author.id;
+        };
+
+
+        const reactionCollector = newMessage.createReactionCollector(filter, { time: 30000 });
+
+        reactionCollector.on("collect", async (reaction, user) => {
+            if (reaction.emoji.name === "✅") {
+
+                const newcheck = msg.guild.channels.cache.get(member.voice.channelID ?? "000");
+
+                if (newcheck === undefined) {
+                    return msg.say(`${user} Please ensure you are in a vc to be dragged from`);
+                }
+
+                await member.voice.setChannel(vc);
+
+                const embed = new MessageEmbed()
+                    .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
+                    .setTitle("Booster Move!")
+                    .setDescription(`I just moved ${member} into ${vc.name} by ${msg.author}`)
+                    .setTimestamp();
+                reactionCollector.stop();
+
+                return msg.say(embed);
+
+            } else if (reaction.emoji.name === "❌") {
+                reactionCollector.stop();
+                return msg.say(`${msg.author}, They have declined your offer`);
+
+            }
+            reactionCollector.on("end", async () => {
+                return msg.say("The offer timed out, please try again when you want");
+
+            });
+        });
+        return null;
+
     }
 }

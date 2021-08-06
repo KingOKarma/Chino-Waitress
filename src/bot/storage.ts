@@ -12,20 +12,23 @@ import fs from "fs";
 export default class Storage {
     private static readonly _configLocation = "./storage.yml";
 
-    public readonly allowedRoles: string[];
+    public allowedRoles: string[];
 
-    public readonly boosterChannel: string;
+    public boosterChannel: string;
 
-    public readonly colourRoles: string[];
+    public boosterVcs: string[];
 
-    public readonly mutedRole: string;
+    public colourRoles: string[];
 
-    public readonly workResponses: string[];
+    public mutedRole: string;
+
+    public workResponses: string[];
 
 
     public constructor() {
         this.allowedRoles = [""];
         this.boosterChannel = "";
+        this.boosterVcs = [""];
         this.colourRoles = [""];
         this.mutedRole = "";
         this.workResponses = [""];

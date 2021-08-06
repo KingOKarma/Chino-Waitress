@@ -42,13 +42,13 @@ export default class BoosterListCommand extends commando.Command {
     ): Promise<Message | Message[]> {
         switch (choice.toLowerCase()) {
             case "add":
-                return addVc(msg, vcID, STORAGE.allowedRoles);
+                return addVc(msg, vcID, STORAGE.boosterVcs);
 
             case "remove":
-                return removeVc(msg, vcID, STORAGE.allowedRoles);
+                return removeVc(msg, vcID, STORAGE.boosterVcs);
 
             case "list":
-                return listVcs(msg, STORAGE.allowedRoles, "Booster Vcs");
+                return listVcs(msg, STORAGE.boosterVcs, "Booster Vcs");
 
             default:
                 return msg.reply("Please give a choice\n`add <vc>`, `remove <vc>`, `list`");
