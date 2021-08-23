@@ -42,14 +42,14 @@ export default class RemoveCommand extends commando.Command {
         + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
         }
 
-        const checkNum = new RegExp("/^[0-9]+$/");
+        const checkNum = new RegExp("^[0-9]+$");
         if (!checkNum.exec(number)) {
             const roleList = STORAGE.colourRoles.map((list, index) => `${index + 1} - <@&${list}>\n`);
 
             const embed = new MessageEmbed()
                 .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
-                .setTitle("Ths list of roles to remove:")
-                .setDescription(roleList.join(""))
+                .setTitle("List of roles to remove:")
+                .setDescription(`${roleList.join("")}\n \`Using ${CONFIG.prefix}remove <number>\``)
                 .setFooter("You can also get these roles by becoming a booster today!");
 
             return msg.say(embed);
@@ -70,8 +70,8 @@ export default class RemoveCommand extends commando.Command {
 
         const embed = new MessageEmbed()
             .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
-            .setTitle(`You have Just Removed the ${roleInstance.name} Role`)
-            .setDescription(`You can claim any other role with \`${CONFIG.prefix}claim <number>\``)
+            .setDescription(`I have removed the ${roleInstance} from **${msg.author.tag}**\n`
+            + `You can claim any other role with \`${CONFIG.prefix}claim <number>\``)
             .setFooter("You can also get these roles by becoming a booster today!");
 
         return msg.say(embed);

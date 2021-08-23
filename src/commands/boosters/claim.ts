@@ -41,18 +41,19 @@ export default class ClaimCommand extends commando.Command {
         + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
         }
 
-        const checkNum = new RegExp("/^[0-9]+$/");
+        const checkNum = new RegExp("^[0-9]+$");
         if (!checkNum.exec(number)) {
             const roleList = STORAGE.colourRoles.map((list: string, index: number) => `${index + 1} - <@&${list}>\n`);
 
             const embed = new MessageEmbed()
                 .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
                 .setTitle("Your Claimable Rewards:")
-                .setDescription(roleList.join(""))
+                .setDescription(`${roleList.join("")}\n \`Using ${CONFIG.prefix}claim <number>\``)
                 .setFooter("You can also get these roles by becoming a booster today!");
 
             return msg.say(embed);
         }
+
         const roleIndex = Number(number) - 1;
         const role = STORAGE.colourRoles[roleIndex];
         const roleInstance = getRole(role, msg.guild);
@@ -75,7 +76,7 @@ export default class ClaimCommand extends commando.Command {
                 const invalidRole = memberRoles.get(cRole);
                 if (invalidRole) {
                     try {
-                        await msg.member.roles.remove(cRole, "Doesn't have required role");
+                        await msg.member.roles.remove(cRole, "Switching out colours");
                     } catch {
                         console.log(`Missing perms to remove colour roles from ${msg.member.user.tag}`);
                     }
@@ -88,7 +89,8 @@ export default class ClaimCommand extends commando.Command {
         const embed = new MessageEmbed()
             .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
             .setTitle(`You have just Claimed the ${roleInstance.name} Role`)
-            .setDescription(`You can remove the ${roleInstance} with \`${CONFIG.prefix}remove <number>\``)
+            .setDescription(`**${msg.author.tag}** has claimed ${roleInstance}\nYou`
+            + ` can remove ${roleInstance} with \`${CONFIG.prefix}remove <number>\``)
             .setFooter("You can also get these roles by becoming a booster today!");
 
         return msg.say(embed);
