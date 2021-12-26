@@ -7,7 +7,7 @@ import ms from "ms";
 
 
 export async function commandHandler(client: ExtendedClient, msg: Message): Promise<void | Message> {
-    if (msg.author.bot || !msg.guild || !msg.content.startsWith(CONFIG.prefix)) return;
+    if (msg.author.bot || !msg.guild || !msg.content.toLowerCase().startsWith(CONFIG.prefix)) return;
 
     const args = msg.content
         .slice(CONFIG.prefix.length)
