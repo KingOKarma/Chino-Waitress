@@ -54,13 +54,16 @@ export async function commandHandler(client: ExtendedClient, msg: Message): Prom
 
             if (!checkRoles(msg.member, STORAGE.allowedRoles)) {
                 return client.reply(msg, { content: `You do not have permission to use this command ${msg.member},\n`
-                + `use \`${CONFIG.prefix}booster list\` to check who can use the command!` });
+                + "This command is for server boosters only!" });
             }
         }
 
         if (command.staffOnly ?? false) {
-            return client.reply(msg, { content: `You do not have permission to use this command ${msg.member},\n`
-            + `use \`${CONFIG.prefix}booster list\` to check who can use the command!` });
+
+            if (!checkRoles(msg.member, STORAGE.staffRoles)) {
+                return client.reply(msg, { content: `You do not have permission to use this command ${msg.member},\n`
+            + "This command may only be used by staff members!" });
+            }
         }
 
         const userPerms = formatPermsArray(command.permissionsUser as PermissionString[]);
