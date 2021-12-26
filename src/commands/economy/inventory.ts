@@ -1,48 +1,27 @@
-import * as commando from "discord.js-commando";
-import { CONFIG, STORAGE } from "../../bot/globals";
-import { Message, MessageEmbed } from "discord.js";
-import { checkRoles, stringpaginate } from "../../bot/utils/utils";
+import { Command } from "../../interfaces";
 import { Guild } from "../../entity/guild";
 import { Inventory } from "../../entity/inventory";
 import { ItemMeta } from "../../entity/item";
+import { MessageEmbed } from "discord.js";
+import { arrayPage } from "../../utils/arrayPage";
 import { getRepository } from "typeorm";
+import { rolePerms } from "../../globals";
 
-export default class InventoryCommand extends commando.Command {
-    private constructor(client: commando.CommandoClient) {
-        super(client, {
-            aliases: ["inv", "iv"],
-            args: [
-                {
-                    default: "1",
-                    error: "Please only use a number for the page",
-                    key: "page",
-                    prompt: "What positiion are you looking for (number)",
-                    type: "integer",
-                    validate: (amount: number): boolean => amount >= 0
-                }
-            ],
-            clientPermissions: ["EMBED_LINKS"],
-            description: "Display's your user's inventory",
-            group: "economy",
-            guildOnly: true,
-            memberName: "inventory",
-            name: "inventory",
-            throttling: {
-                duration: 3,
-                usages: 3
-            }
-        });
-    }
 
-    public async run(
-        msg: commando.CommandoMessage,
-        { page }: { page: number; }
-    ): Promise<Message | Message[]> {
-        const perms = checkRoles(msg.member, STORAGE.allowedRoles);
-        if (!perms) {
-            return msg.say(`You do not have permission to use this command ${msg.member},\n`
-        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
-        }
+export const command: Command = {
+    aliases: ["inv", "iv"],
+    boosterOnly: true,
+    cooldown: 3,
+    description: "Display's your user's inventory",
+    example: ["!inventory 3"],
+    group: "economy",
+    guildOnly: true,
+    name: "inventory",
+    permissionsBot: rolePerms,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    run: async (client, msg, args) => {
+        const [page] = args;
+        if (!msg.guild) return;
 
         const invRepo = getRepository(Inventory);
         const itemsRepo = getRepository(ItemMeta);
@@ -53,23 +32,21 @@ export default class InventoryCommand extends commando.Command {
         const itemList = await invRepo.findOne({ serverid: msg.guild.id, uid: msg.author.id });
 
         if (!itemList) {
-            return msg.say("You have no items in your inventory, you can buy them from the server shop!");
+            return client.reply(msg, { content: "You have no items in your inventory, you can buy them from the server shop!" });
         }
 
         if (!guild) {
-            return msg.say("A shop has not been setup in this server, please ask a server manager to do so");
+            return client.reply(msg, { content: "A shop has not been setup in this server, please ask a server manager to do so" });
         }
 
-        const iteamsPaged: string[] = stringpaginate(itemList.items, 9, page);
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        const iteamsPaged = arrayPage(itemList.items, 9, Number(page ?? 1));
 
         if (iteamsPaged.length === 0) {
-            return msg.say("There are no items on that page");
+            return client.reply(msg, { content: "There are no items on that page" });
         }
 
-        let guildicon = msg.guild.iconURL({ dynamic: true });
-        if (guildicon === null) {
-            guildicon = "";
-        }
+        const guildicon = msg.guild.iconURL({ dynamic: true });
 
         const embed = new MessageEmbed();
 
@@ -78,17 +55,17 @@ export default class InventoryCommand extends commando.Command {
             // eslint-disable-next-line no-await-in-loop
             const itemInfo = await itemsRepo.findOne({ guild, name: item });
             if (!itemInfo) {
-                return msg.say("An item in the server could not be found");
+                return client.reply(msg, { content: "An item in the server could not be found" });
             }
             embed.addField(`${item}`, itemInfo.description);
         }
 
         embed.setColor("BLUE");
-        embed.setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }));
+        embed.setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag });
         embed.setTitle("Inventory");
         embed.setFooter("If there is a problem with an item please report it's ID number to the dev");
-        embed.setThumbnail(guildicon);
+        embed.setThumbnail(guildicon ?? "");
 
-        return msg.channel.send(embed);
+        return client.reply(msg, { embeds: [embed] });
     }
-}
+};

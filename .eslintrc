@@ -344,7 +344,6 @@
         "yoda": 2,
         "array-bracket-spacing": 2,
         "block-spacing": 2,
-        "capitalized-comments": 2,
         "no-lonely-if": 2,
         "no-trailing-spaces": 2,
         "no-whitespace-before-property": 2,

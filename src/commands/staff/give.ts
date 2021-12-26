@@ -1,57 +1,32 @@
-/* eslint-disable camelcase */
-import {
-} from "../../bot/utils/roles";
-import * as commando from "discord.js-commando";
-import { Message, MessageEmbed } from "discord.js";
+import { Command } from "../../interfaces";
+import { MessageEmbed } from "discord.js";
 import { User } from "../../entity/user";
-import { getMember } from "../../bot/utils/utils";
+import { getMember } from "../../utils/getMember";
 import { getRepository } from "typeorm";
-import { rolePerms } from "../../bot/globals";
+import { rolePerms } from "../../globals";
 
-export default class StaffGiveCommand extends commando.Command {
-    public constructor(client: commando.CommandoClient) {
-        super(client, {
-            args: [
-                {
-                    key: "memberID",
-                    prompt: "The User you are giving to",
-                    type: "string"
-                },
-                {
-                    error: "Please only use a number for the price, please chose a number above 1",
-                    key: "amount",
-                    prompt: "How much are you giving the user?",
-                    type: "integer"
-                }
-            ],
+export const command: Command = {
+    cooldown: 3,
+    description: "Gives currency to a user",
+    example: ["!give @user 200"],
+    group: "staff",
+    guildOnly: true,
+    name: "give",
+    permissionsBot: rolePerms,
+    staffOnly: true,
+    // eslint-disable-next-line sort-keys
+    run: async (client, msg, args) => {
+        const [memberID, amount] = args;
+        if (!msg.guild) return;
 
-            clientPermissions: rolePerms,
-            description: "Gives money to a user",
-            group: "staff",
-            guildOnly: true,
-            memberName: "give",
-            name: "give",
-            throttling: {
-                duration: 5,
-                usages: 3
-            },
-            userPermissions: rolePerms
-        });
-    }
-
-    public async run(
-        msg: commando.CommandoMessage,
-        { memberID, amount }: {
-            amount: number;
-            memberID: string;
-        }
-    ): Promise<Message | Message[]> {
         const userRepo = getRepository(User);
         let member = await getMember(memberID, msg.guild);
 
-        if (member === null) {
+        if (!member) {
             ({ member } = msg);
         }
+
+        if (!member) return;
 
 
         let user = await userRepo.findOne({ serverId: msg.guild.id, uid: member.user.id });
@@ -67,17 +42,17 @@ export default class StaffGiveCommand extends commando.Command {
         }
 
         let userBal = user.balance;
-        userBal += amount;
+        userBal += Number(amount);
 
-        user.balance += amount;
+        user.balance += Number(amount);
         await userRepo.save(user);
 
         const embed = new MessageEmbed()
-            .setAuthor(member.user.tag, member.user.displayAvatarURL({ dynamic: true }))
+            .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
             .setTitle("User Give")
             .setDescription(`I have given **${amount}🍩** to \`${member.user.tag}\` they now have **${userBal}**🍩 Donuts`)
             .setFooter(`Given by ${msg.author.tag}`)
             .setTimestamp();
-        return msg.say(embed);
+        return client.reply(msg, { embeds: [embed] });
     }
-}
+};

@@ -1,45 +1,24 @@
-import * as commando from "discord.js-commando";
-import { CONFIG, STORAGE } from "../../bot/globals";
-import { Message, MessageEmbed } from "discord.js";
+import { CONFIG, rolePerms } from "../../globals";
+import { Command } from "../../interfaces";
 import { Guild } from "../../entity/guild";
 import { ItemMeta } from "../../entity/item";
-import { checkRoles } from "../../bot/utils/utils";
+import { MessageEmbed } from "discord.js";
 import { getRepository } from "typeorm";
 
-export default class ItemInfoCommand extends commando.Command {
-    private constructor(client: commando.CommandoClient) {
-        super(client, {
-            aliases: ["iteminfo"],
-            args: [
-                {
-                    error: "Make sure that the name is EXACTLY the same as it appears on the shop",
-                    key: "itemName",
-                    prompt: "What is the name of the item you are looking for",
-                    type: "string"
-                }
-            ],
-            clientPermissions: ["EMBED_LINKS"],
-            description: "displays the server shop",
-            group: "economy",
-            guildOnly: true,
-            memberName: "item",
-            name: "item",
-            throttling: {
-                duration: 3,
-                usages: 3
-            }
-        });
-    }
-
-    public async run(
-        msg: commando.CommandoMessage,
-        { itemName }: { itemName: string; }
-    ): Promise<Message | Message[]> {
-        const perms = checkRoles(msg.member, STORAGE.allowedRoles);
-        if (!perms) {
-            return msg.say(`You do not have permission to use this command ${msg.member},\n`
-        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
-        }
+export const command: Command = {
+    aliases: ["iteminfo"],
+    boosterOnly: true,
+    cooldown: 3,
+    description: "Displays an item from the server shop",
+    example: ["!item slinky"],
+    group: "economy",
+    guildOnly: true,
+    name: "item",
+    permissionsBot: rolePerms,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    run: async (client, msg, args) => {
+        const [itemName] = args;
+        if (!msg.guild) return;
 
         const guildRepo = getRepository(Guild);
         const itemsRepo = getRepository(ItemMeta);
@@ -48,21 +27,18 @@ export default class ItemInfoCommand extends commando.Command {
         const item = await itemsRepo.findOne({ guild, name: itemName });
 
         if (!guild) {
-            return msg.say(`The shop is currently empty please ask someone with "Manage Server" permissions to run \`${CONFIG.prefix}additem\``);
+            return client.reply(msg, { content: `The shop is currently empty please ask someone with "Manage Server" permissions to run \`${CONFIG.prefix}additem\`` });
         }
 
         if (!item) {
-            return msg.say("This item does not exist, make sure you are typing the EXACT name");
+            return client.reply(msg, { content: "This item does not exist, make sure you are typing the EXACT name" });
         }
 
-        let guildicon = msg.guild.iconURL({ dynamic: true });
-        if (guildicon === null) {
-            guildicon = "";
-        }
+        const guildicon = msg.guild.iconURL({ dynamic: true });
 
         const embed = new MessageEmbed();
         embed.setColor("BLUE");
-        embed.setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }));
+        embed.setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag });
         embed.setTitle(`${msg.guild.name}'s Item Info`);
         embed.addField("Name", `${item.name}`, true);
         embed.addField("Description", `${item.description}`, true);
@@ -71,8 +47,8 @@ export default class ItemInfoCommand extends commando.Command {
         embed.addField("ID", `${item.id}`, true);
 
         embed.setFooter("If there is a problem with an item please report it's ID number to the dev");
-        embed.setThumbnail(guildicon);
+        embed.setThumbnail(guildicon ?? "");
 
-        return msg.channel.send(embed);
+        return client.reply(msg, { embeds: [embed] });
     }
-}
+};

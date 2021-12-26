@@ -1,6 +1,11 @@
-token: 'BOT_TOKEN'
+# Make sure the id(s) are seperated by commas (,)
+owners: ["OWNER IDs"]
 
-prefix: 'PREFIX'
+devEnv:
+    devServer: "DEV SERVER ID"
+    isDev: true
 
-owners:
-  -'OWNERS_ID(S)'
+prefix: "PREFIX"
+
+# Token Example: NzU4Mzg1STh3MgS5DHCsHsVY.X2uSag.71AkvJZaVe3R-s5Ay3GatchEdGe
+token: "TOKEN"

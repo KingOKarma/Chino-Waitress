@@ -1,57 +1,33 @@
-import * as commando from "discord.js-commando";
-import { STORAGE, rolePerms } from "../../bot/globals";
-import { addVc, listVcs, removeVc } from "../../bot/utils/vcs";
-import { Message } from "discord.js";
+import { STORAGE, rolePerms } from "../../globals";
+import { addVc, listVcs, removeVc } from "../../utils/lists/vcs";
+import { Command } from "../../interfaces";
 
-export default class BoosterListCommand extends commando.Command {
-    public constructor(client: commando.CommandoClient) {
-        super(client, {
-            args: [
-                {
-                    default: "",
-                    key: "choice",
-                    oneOf: ["add", "remove", "list"],
-                    prompt: "Add, Remove or List",
-                    type: "string"
-                },
-                {
-                    default: "",
-                    key: "vcID",
-                    prompt: "I need a VC ID to add/remove to/from",
-                    type: "string"
-                }
-            ],
+export const command: Command = {
+    cooldown: 3,
+    description: "Lets you decide to add, remove, or list the boosters vcs",
+    example: ["!boostvc add @role", "!boostvc remove 2", "!boostvc list 3"],
+    group: "staff",
+    guildOnly: true,
+    name: "boostvc",
+    permissionsBot: rolePerms,
+    staffOnly: true,
+    // eslint-disable-next-line sort-keys
+    run: async (client, msg, args) => {
+        const [choice, vcID] = args;
+        if (!msg.guild) return;
 
-            clientPermissions: rolePerms,
-            description: "Lets you decide to add, remove, or list the boosters roles",
-            group: "staff",
-            guildOnly: true,
-            memberName: "boostvc",
-            name: "boostvc",
-            throttling: {
-                duration: 5,
-                usages: 3
-            },
-            userPermissions: rolePerms
-        });
-    }
-
-    public async run(
-        msg: commando.CommandoMessage,
-        { choice, vcID }: { choice: string; vcID: string; }
-    ): Promise<Message | Message[]> {
-        switch (choice.toLowerCase()) {
+        switch (choice ? choice.toLowerCase() : "none") {
             case "add":
-                return addVc(msg, vcID, STORAGE.boosterVcs);
+                return addVc(client, msg, vcID, STORAGE.boosterVcs);
 
             case "remove":
-                return removeVc(msg, vcID, STORAGE.boosterVcs);
+                return removeVc(client, msg, vcID, STORAGE.boosterVcs);
 
             case "list":
-                return listVcs(msg, STORAGE.boosterVcs, "Booster Vcs");
+                return listVcs(client, msg, STORAGE.boosterVcs, "Booster Vcs");
 
             default:
                 return msg.reply("Please give a choice\n`add <vc>`, `remove <vc>`, `list`");
         }
     }
-}
+};

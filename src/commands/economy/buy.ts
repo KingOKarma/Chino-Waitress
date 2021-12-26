@@ -1,51 +1,26 @@
-import * as commando from "discord.js-commando";
-import { CONFIG, STORAGE } from "../../bot/globals";
-import { Message, MessageEmbed } from "discord.js";
+import { CONFIG, rolePerms } from "../../globals";
+import { Command } from "../../interfaces";
 import { Guild } from "../../entity/guild";
 import { Inventory } from "../../entity/inventory";
 import { ItemMeta } from "../../entity/item";
+import { MessageEmbed } from "discord.js";
 import { User } from "../../entity/user";
-import { checkRoles } from "../../bot/utils/utils";
 import { getRepository } from "typeorm";
 
-// Creates a new class (being the command) extending off of the commando client
-export default class BuyCommand extends commando.Command {
-    public constructor(client: commando.CommandoClient) {
-        super(client, {
-            args: [
-                {
-                    error: "Make sure that the name is EXACTLY the same as it appears on the shop",
-                    key: "itemName",
-                    prompt: "What do you want to buy?",
-                    type: "string"
-                }
-            ],
-            clientPermissions: ["EMBED_LINKS"],
-            description: "Buy anything from a server shop",
-            // This is the group the command is put in
-            group: "economy",
-            guildOnly: true,
-            // This is the name of set within the group (most people keep this the same)
-            memberName: "buy",
-            name: "buy",
-            // Ratelimits the command usage to 3 every 5 seconds
-            throttling: {
-                duration: 5,
-                usages: 3
-            }
-        });
-    }
+export const command: Command = {
+    boosterOnly: true,
+    cooldown: 3,
+    description: "Buy anything from a server shop",
+    example: ["!buy silly-string"],
+    group: "economy",
+    guildOnly: true,
+    name: "buy",
+    permissionsBot: rolePerms,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    run: async (client, msg, args) => {
+        const [itemName] = args;
+        if (!msg.guild) return;
 
-    // Now to run the actual command, the run() parameters need to be defiend (by types and names)
-    public async run(
-        msg: commando.CommandoMessage,
-        { itemName }: {itemName: string; }
-    ): Promise<Message | Message[]> {
-        const perms = checkRoles(msg.member, STORAGE.allowedRoles);
-        if (!perms) {
-            return msg.say(`You do not have permission to use this command ${msg.member},\n`
-        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
-        }
 
         const userRepo = getRepository(User);
         const itemsRepo = getRepository(ItemMeta);
@@ -58,7 +33,7 @@ export default class BuyCommand extends commando.Command {
         const inv = await invRepo.findOne({ serverid: msg.guild.id, uid: msg.author.id });
 
         if (!item) {
-            return msg.say("That item does not exist in the shop, try again with the exact name!");
+            return client.reply(msg, { content: "That item does not exist in the shop, try again with the exact name!" });
         }
 
         if (!user) {
@@ -73,15 +48,15 @@ export default class BuyCommand extends commando.Command {
         }
 
         if (user.balance < item.price) {
-            return msg.say(`You don't have enough Donuts for **${item.name}**!`);
+            return client.reply(msg, { content: `You don't have enough Donuts for **${item.name}**!` });
         }
 
         if (item.max === 0) {
-            return msg.say(
-                String(`Sorry there are no more **${itemName}'s** left in stock!`
+            return client.reply(msg, { content:
+                `Sorry there are no more **${itemName}'s** left in stock!`
                 + `\nPlease ask a server manager to add to the stock with \`${CONFIG.prefix}addstock\`!`
-                + "```diff\n- OUT OF STOCK```")
-            );
+                + "```diff\n- OUT OF STOCK```"
+            });
         }
 
         if (!inv) {
@@ -110,10 +85,10 @@ export default class BuyCommand extends commando.Command {
             .setThumbnail(guildicon)
             .setColor("BLUE")
             .setTitle("Currency")
-            .setAuthor(user.tag, user.avatar)
+            .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
             .setDescription(`You just bought **${itemName}**, You can find it with \`${CONFIG.prefix}inv\`!`)
             .setFooter(`You can use ${CONFIG.prefix}inv to check what items you have`)
             .setTimestamp();
-        return msg.channel.send(embed);
+        return client.reply(msg, { embeds: [embed] });
     }
-}
+};

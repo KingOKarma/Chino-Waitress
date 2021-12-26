@@ -11,5 +11,8 @@ boosterVcs:
 
 mutedRole: Muted role ID for the server
 
+staffRoles: 
+  - Array of role IDs for staff roles (for staff commands)
+
 workResponses:
   - Any responses when working

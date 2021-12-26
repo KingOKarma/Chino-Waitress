@@ -22,6 +22,8 @@ export default class Storage {
 
     public mutedRole: string;
 
+    public staffRoles: string[];
+
     public workResponses: string[];
 
 
@@ -31,6 +33,7 @@ export default class Storage {
         this.boosterVcs = [""];
         this.colourRoles = [""];
         this.mutedRole = "";
+        this.staffRoles = [""];
         this.workResponses = [""];
     }
 

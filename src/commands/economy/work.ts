@@ -1,38 +1,28 @@
-import * as commando from "discord.js-commando";
-import { CONFIG, STORAGE } from "../../bot/globals";
-import { Message, MessageEmbed } from "discord.js";
+import { CONFIG, STORAGE, rolePerms } from "../../globals";
+import { Command } from "../../interfaces";
 import { Guild } from "../../entity/guild";
+import { MessageEmbed } from "discord.js";
 import { User } from "../../entity/user";
-import { checkRoles } from "../../bot/utils/utils";
 import { getRepository } from "typeorm";
 import ms from "ms";
 
 const timeOut = new Map();
-const devs = CONFIG.owners;
 
-export default class WorkCommand extends commando.Command {
-    public constructor(client: commando.CommandoClient) {
-        super(client, {
-            description: "Work to become a world renowned KFC worker",
-            group: "economy",
-            guildOnly: true,
-            memberName: "work",
-            name: "work",
-            throttling: {
-                duration: 3,
-                usages: 4
-            }
-        });
-    }
 
-    public async run(
-        msg: commando.CommandoMessage
-    ): Promise<Message | Message[]> {
-        const perms = checkRoles(msg.member, STORAGE.allowedRoles);
-        if (!perms) {
-            return msg.say(`You do not have permission to use this command ${msg.member},\n`
-        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
-        }
+export const command: Command = {
+    boosterOnly: true,
+    cooldown: 3,
+    description: "Work to become a world renowned worker",
+    example: ["!use slinky"],
+    group: "economy",
+    guildOnly: true,
+    name: "work",
+    permissionsBot: rolePerms,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    run: async (client, msg, _args) => {
+        if (!msg.guild) return;
+
+        const devs = CONFIG.owners;
 
         const userRepo = getRepository(User);
         const guildRepo = getRepository(Guild);
@@ -61,8 +51,6 @@ export default class WorkCommand extends commando.Command {
             user = newUser;
         }
 
-        // Return msg.say("There was a problem getting your user from the database, try again!");
-
         const isdev = devs.some((checkDev) => checkDev === msg.author.id);
         const timeout = 21600 * 1000;
         const key = `${msg.author.id}work`;
@@ -72,7 +60,7 @@ export default class WorkCommand extends commando.Command {
         if (found && !isdev) {
             const timePassed = Date.now() - found;
             const timeLeft = timeout - timePassed;
-            return msg.say(`**Whoa there you're a bit too fast there. you gotta wait another ${ms(timeLeft)}!**`);
+            return client.reply(msg, { content: `**Whoa there you're a bit too fast there. you gotta wait another ${ms(timeLeft)}!**` });
         }
 
         const earn = Math.floor(Math.random() * 500 + 100);
@@ -96,10 +84,10 @@ export default class WorkCommand extends commando.Command {
         }
         const embed = new MessageEmbed();
 
-        embed.setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }));
+        embed.setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag });
         embed.setTitle("Working Hours");
         embed.setDescription(response);
         embed.setFooter("Donuts Currency is only available for server boosters!");
-        return msg.say(embed);
+        return client.reply(msg, { embeds: [embed] });
     }
-}
+};

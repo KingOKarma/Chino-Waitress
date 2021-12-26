@@ -1,26 +1,23 @@
-/* eslint-disable camelcase */
-import { safeDump, safeLoad } from "js-yaml";
+import { dump, load } from "js-yaml";
 import { CONFIG } from "./globals";
 import fs from "fs";
+
+export interface DevEnv {
+    devServer: string;
+    isDev: boolean;
+}
 
 /**
  * This represents the config.yml
  * @class Config
- * @property {string} db_host
-  *@property {number} db_port
-  *@property {string} db_user
-  *@property {string} db_pass
  * @property {string} token
  * @property {string} prefix
- * @property {string[]} allowedRoles
- * @property {string[]} colourRoles
  * @property {string[]} owners
- * @property {string} boosterChannel
- * @property {string} mutedRole
- * @property {string[]} workResponses
  */
 export default class Config {
     private static readonly _configLocation = "./config.yml";
+
+    public readonly devEnv: DevEnv;
 
     public readonly owners: string[];
 
@@ -28,11 +25,11 @@ export default class Config {
 
     public readonly token: string;
 
-
-    public constructor() {
+    private constructor() {
+        this.devEnv = { devServer: "", isDev: false };
         this.owners = [""];
-        this.token = "";
         this.prefix = "";
+        this.token = "";
     }
 
     /**
@@ -46,15 +43,15 @@ export default class Config {
             Config._configLocation,
             "utf-8"
         );
-        const casted = safeLoad(fileContents) as Config;
+        const casted = load(fileContents) as Config;
 
         return casted;
     }
 
     /**
-     * Safe the config to the config.yml default location
-     */
+   *  Safe the config to the congfig.yml default location
+   */
     public static saveConfig(): void {
-        fs.writeFileSync(Config._configLocation, safeDump(CONFIG));
+        fs.writeFileSync(Config._configLocation, dump(CONFIG));
     }
 }

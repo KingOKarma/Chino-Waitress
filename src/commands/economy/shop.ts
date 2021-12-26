@@ -1,53 +1,37 @@
-import * as commando from "discord.js-commando";
-import { Message, MessageEmbed } from "discord.js";
-import { CONFIG } from "../../bot/globals";
+import { CONFIG, rolePerms } from "../../globals";
+import { Command } from "../../interfaces";
 import { Guild } from "../../entity/guild";
 import { ItemMeta } from "../../entity/item";
+import { MessageEmbed } from "discord.js";
+import { arrayPage } from "../../utils/arrayPage";
 import { getRepository } from "typeorm";
-import { shoppaginate } from "../../bot/utils/utils";
 
-export default class ShopCommand extends commando.Command {
-    public constructor(client: commando.CommandoClient) {
-        super(client, {
-            aliases: ["market"],
-            args: [
-                {
-                    default: "1",
-                    error: "Please only use a number for the page",
-                    key: "page",
-                    prompt: "What positiion are you looking for (number)",
-                    type: "integer",
-                    validate: (amount: number): boolean => amount >= 0
-                }
-            ],
-            clientPermissions: ["EMBED_LINKS"],
-            description: "displays the server shop",
-            group: "economy",
-            guildOnly: true,
-            memberName: "shop",
-            name: "shop",
-            throttling: {
-                duration: 3,
-                usages: 3
-            }
-        });
-    }
+export const command: Command = {
+    aliases: ["market"],
+    cooldown: 3,
+    description: "Displays the server shop",
+    example: ["!page 2", "!page"],
+    group: "economy",
+    guildOnly: true,
+    name: "shop",
+    permissionsBot: rolePerms,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    run: async (client, msg, args) => {
+        const [page] = args;
+        if (!msg.guild) return;
 
-    public async run(
-        msg: commando.CommandoMessage,
-        { page }: { page: number; }
-    ): Promise<Message | Message[]> {
         const guildRepo = getRepository(Guild);
 
         const guild = await guildRepo.findOne({ relations: ["shop"], where: { serverid: msg.guild.id } });
         if (!guild) {
-            return msg.say(`The shop is currently empty please ask someone with "Manage Server" permissions to run \`${CONFIG.prefix}additem\``);
+            return client.reply(msg, { content: `The shop is currently empty please ask someone with "Manage Server" permissions to run \`${CONFIG.prefix}additem\`` });
         }
 
-        const iteamsPaged: ItemMeta[] = shoppaginate(guild.shop, 9, page);
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        const iteamsPaged: ItemMeta[] = arrayPage(guild.shop, 9, Number(page ?? 1));
 
         if (iteamsPaged.length === 0) {
-            return msg.say("There are no items on that page Or the shop doens't Currntly exist on the server yet!");
+            return client.reply(msg, { content: "There are no items on that page Or the shop doens't Currntly exist on the server yet!" });
         }
 
         let guildicon = msg.guild.iconURL({ dynamic: true });
@@ -64,11 +48,11 @@ export default class ShopCommand extends commando.Command {
             embed.addField(item.name, `${item.description}\n\`\`\`Price: ${item.price} Donut(s)\n${text}\nID: ${item.id}\`\`\``);
         });
         embed.setColor("BLUE");
-        embed.setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }));
+        embed.setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag });
         embed.setTitle(`${msg.guild.name}'s Server Shop`);
         embed.setFooter("If there is a problem with an item please report it's ID number to the dev");
         embed.setThumbnail(guildicon);
 
-        return msg.channel.send(embed);
+        return client.reply(msg, { embeds: [embed] });
     }
-}
+};

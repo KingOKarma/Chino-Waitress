@@ -1,50 +1,23 @@
-import * as commando from "discord.js-commando";
-import { CONFIG, STORAGE } from "../../bot/globals";
-import { Message, MessageEmbed } from "discord.js";
+import { CONFIG, rolePerms } from "../../globals";
+import { Command } from "../../interfaces";
 import { Inventory } from "../../entity/inventory";
+import { MessageEmbed } from "discord.js";
 import { User } from "../../entity/user";
-import { checkRoles } from "../../bot/utils/utils";
 import { getRepository } from "typeorm";
 
-// Creates a new class (being the command) extending off of the commando client
-export default class UseItemCommand extends commando.Command {
-    public constructor(client: commando.CommandoClient) {
-        super(client, {
-            aliases: ["activate", "interact"],
-            args: [
-                {
-                    error: "Make sure that the name is EXACTLY the same as it appears on the shop",
-                    key: "itemName",
-                    prompt: "Which item do you wish to use?",
-                    type: "string"
-                }
-            ],
-            clientPermissions: ["EMBED_LINKS"],
-            description: "Use's an item in a user's inventory",
-            // This is the group the command is put in
-            group: "economy",
-            guildOnly: true,
-            // This is the name of set within the group (most people keep this the same)
-            memberName: "use",
-            name: "use",
-            // Ratelimits the command usage to 3 every 5 seconds
-            throttling: {
-                duration: 3,
-                usages: 3
-            }
-        });
-    }
-
-    // Now to run the actual command, the run() parameters need to be defiend (by types and names)
-    public async run(
-        msg: commando.CommandoMessage,
-        { itemName }: {itemName: string; }
-    ): Promise<Message | Message[]> {
-        const perms = checkRoles(msg.member, STORAGE.allowedRoles);
-        if (!perms) {
-            return msg.say(`You do not have permission to use this command ${msg.member},\n`
-        + `use \`${CONFIG.prefix}booster list\` to check who can use the command!`);
-        }
+export const command: Command = {
+    aliases: ["activate", "interact"],
+    cooldown: 3,
+    description: "Use's an item in your inventory",
+    example: ["!use slinky"],
+    group: "economy",
+    guildOnly: true,
+    name: "use",
+    permissionsBot: rolePerms,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    run: async (client, msg, args) => {
+        const [itemName] = args;
+        if (!msg.guild) return;
 
         const userRepo = getRepository(User);
         const invRepo = getRepository(Inventory);
@@ -64,7 +37,7 @@ export default class UseItemCommand extends commando.Command {
         }
 
         if (!inv) {
-            return msg.say("You don't seem to have an inventory, make sure to buy something from the shop first!");
+            return client.reply(msg, { content: "You don't seem to have an inventory, make sure to buy something from the shop first!" });
         }
 
         const index = inv.items.indexOf(itemName, 0);
@@ -73,19 +46,17 @@ export default class UseItemCommand extends commando.Command {
         }
         await invRepo.save(inv);
 
-        let guildicon = msg.guild.iconURL({ dynamic: true });
-        if (guildicon === null) {
-            guildicon = "";
-        }
+        const guildicon = msg.guild.iconURL({ dynamic: true });
+
 
         const embed = new MessageEmbed()
-            .setThumbnail(guildicon)
+            .setThumbnail(guildicon ?? "")
             .setColor("BLUE")
             .setTitle("Currency")
-            .setAuthor(user.tag, user.avatar)
+            .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
             .setDescription(`The item **${itemName}** was ysed by **${msg.author.tag}** (${msg.author.id}) in **${msg.guild.name}** (${msg.guild.id})`)
             .setFooter(`You can use ${CONFIG.prefix}inv to check what other items you have`)
             .setTimestamp();
-        return msg.channel.send(embed);
+        return client.reply(msg, { embeds: [embed] });
     }
-}
+};

@@ -1,41 +1,20 @@
-import * as commando from "discord.js-commando";
-import { Message } from "discord.js";
+import { Command } from "../../interfaces";
+import { rolePerms } from "../../globals";
 
-// Creates a new class (being the command) extending off of the commando client
-export default class SayCommand extends commando.Command {
-    public constructor(client: commando.CommandoClient) {
-        super(client, {
-            aliases: ["s", "sentence"],
-            args: [
-                {
-                    key: "args1",
-                    prompt: "Give me something good to say!",
-                    type: "string"
-                }
-            ],
+export const command: Command = {
+    aliases: ["s", "sentence"],
+    cooldown: 3,
+    description: "I can say whatever the user wants!",
+    example: ["!say owo chino is my favourite youtuber!!111!"],
+    group: "boosters",
+    guildOnly: true,
+    name: "say",
+    permissionsBot: rolePerms,
+    staffOnly: true,
+    // eslint-disable-next-line sort-keys
+    run: async (client, msg, args) => {
 
-            clientPermissions: ["MANAGE_MESSAGES"],
-            description: "I can say whatever the user wants!",
-            group: "boosters",
-            guildOnly: true,
-            memberName: "say",
-            name: "say",
-            throttling: {
-                duration: 5,
-                usages: 3
-            },
-            userPermissions: ["MANAGE_MESSAGES"]
-        });
-    }
-
-    // Now to run the actual command, the run() parameters need to be defiend (by types and names)
-    public async run(
-        msg: commando.CommandoMessage,
-        { args1 }: { args1: string; }
-    ): Promise<Message | Message[]> {
-    // Deletes command usage
+        await client.reply(msg, { content: args.join(" "), "files": [...msg.attachments.values()] });
         await msg.delete();
-        // Responds with whatever the user has said.
-        return msg.say(args1);
     }
-}
+};
