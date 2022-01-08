@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/restrict-plus-operands */
-import { ColorResolvable, MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+import { EmbedFieldData, MessageActionRow, MessageButton, MessageEmbedOptions } from "discord.js";
 import { Command } from "../../interfaces";
 import { arrayPage } from "../../utils/arrayPage";
 import { capitalize } from "../../utils/capitalize";
@@ -36,7 +36,6 @@ export const command: Command = {
                 const sortedCommands = [...client.commands.values()].sort((a, b) => a.group > b.group ? 1 : b.group > a.group ? -1 : 0);
 
                 const commands = arrayPage(sortedCommands, 4, Number(page));
-                const colour = msg.guild?.me?.displayColor as ColorResolvable;
 
                 let finalPage = 1;
                 let notMax = false;
@@ -49,14 +48,10 @@ export const command: Command = {
                     }
                 }
                 finalPage -= 1;
+                const fields: EmbedFieldData[] = [];
 
-                const embed = new MessageEmbed()
-                    .setTitle(`${client.user?.tag}'s ${client.commands.size} Commands`)
-                    .setTimestamp()
-                    .setColor(colour)
-                    .setFooter(`Page ${page} of ${finalPage} pages`);
                 if (commands.length === 0) {
-                    embed.addField("Empty", "> This page is emtpy!");
+                    fields.push({ name: "Empty", value: "> This page is emtpy!" });
                 } else {
                     commands.forEach((cmd) => {
 
@@ -64,12 +59,22 @@ export const command: Command = {
 
                         if (cmd.aliases !== undefined) aliases = `> **Aliases:** ${cmd.aliases.map((a) => `\`${a}\``)}`;
 
-                        embed.addField(capitalize(cmd.name), `${`> **Description:** ${cmd.description} \n`
-                            + `> **Group:** ${capitalize(cmd.group)}\n`
-                            + `> **Example usage:** ${cmd.example.map((a) => `\`${a}\``).join(", ")}\n`}${aliases}`);
+                        fields.push({
+                            name: capitalize(cmd.name),
+                            value: `${`> **Description:** ${cmd.description} \n`
+                                + `> **Group:** ${capitalize(cmd.group)}\n`
+                                + `> **Example usage:** ${cmd.example.map((a) => `\`${a}\``).join(", ")}\n`}${aliases}`
+                        });
 
                     });
                 }
+
+                const embed: MessageEmbedOptions = {
+                    title: `${client.user?.tag}'s ${client.commands.size} Commands`,
+                    timestamp: msg.createdTimestamp,
+                    footer: { text: `Page ${page} of ${finalPage} pages` },
+                    fields
+                };
 
 
                 const first = new MessageButton()
@@ -121,21 +126,18 @@ export const command: Command = {
                     );
 
                 if (Number(page) > finalPage) {
-                    return msg.reply({ components: [otherButton], embeds: [embed] }).then(() => {
+                    return client.embedReply(msg, { components: [otherButton], embed }).then(() => {
                         if (msg.deletable) return msg.delete();
                     });
                 }
 
-                return msg.reply({ components: [button], embeds: [embed] }).then(() => {
+                return client.embedReply(msg, { components: [button], embed }).then(() => {
                     if (msg.deletable) return msg.delete();
                 });
 
             }
 
             case "cmd": {
-
-                const colour = msg.guild?.me?.displayColor as ColorResolvable;
-
 
                 const cmd = [...client.commands.values()].find((c) => {
                     if (c.aliases !== undefined) {
@@ -151,14 +153,16 @@ export const command: Command = {
                     return c.name === args[0];
                 });
 
-                // Const cmd = client.commands.get(args[0]);
-                const embed = new MessageEmbed();
+                let embed: MessageEmbedOptions = {};
+
 
                 if (cmd === undefined) {
-                    embed.setTitle("Command not found");
-                    embed.setTimestamp();
-                    embed.setColor(colour);
-                    return msg.reply({ embeds: [embed] }).then(() => {
+                    embed = {
+                        title: "Command not found",
+                        timestamp: msg.createdTimestamp
+                    };
+
+                    return client.embedReply(msg, { embed }).then(() => {
                         if (msg.deletable) return msg.delete();
                     });
 
@@ -168,16 +172,15 @@ export const command: Command = {
 
                 if (cmd.aliases !== undefined) aliases = `\n> \n> **Aliases:** ${cmd.aliases.map((a) => `\`${a}\``)}`;
 
-                embed.setTitle(`${capitalize(cmd.name)}'s Details`);
-                embed.setTimestamp();
-                embed.setColor(colour);
-                embed.setDescription(
-                    `> **Description:** ${cmd.description}\n> \n`
-                    + `> **Group:** ${capitalize(cmd.group)}\n> \n`
-                    + `> **Example Usage:** ${cmd.example.map((a) => `\`${a}\``).join(", ")}`
-                    + `${aliases}`
-
-                );
+                embed = {
+                    title: `${capitalize(cmd.name)}'s Details`,
+                    timestamp: msg.createdTimestamp,
+                    description:
+                        `> **Description:** ${cmd.description}\n> \n`
+                        + `> **Group:** ${capitalize(cmd.group)}\n> \n`
+                        + `> **Example Usage:** ${cmd.example.map((a) => `\`${a}\``).join(", ")}`
+                        + `${aliases}`
+                };
 
                 const button = new MessageActionRow()
                     .addComponents(

@@ -1,4 +1,4 @@
-import { ColorResolvable, Message, MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
+import { MessageActionRow, MessageButton, MessageEmbed } from "discord.js";
 import Buttons from "../../../interfaces/buttons";
 import { arrayPage } from "../../../utils/arrayPage";
 import { capitalize } from "../../../utils/capitalize";
@@ -8,14 +8,12 @@ export const buttons: Buttons = {
     name: "helpfirstpage",
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     run: async (client, interaction) => {
-        const msg = interaction.message as Message;
         const { component } = interaction;
 
         if (component === null) return;
         const sortedCommands = [...client.commands.values()].sort((a, b) => a.group > b.group ? 1 : b.group > a.group ? -1 : 0);
 
         const commands = arrayPage(sortedCommands, 4, 1);
-        const colour = msg.guild?.me?.displayColor as ColorResolvable;
 
         let finalPage = 1;
         let notMax = false;
@@ -32,7 +30,7 @@ export const buttons: Buttons = {
         const embed = new MessageEmbed()
             .setTitle(`${client.user?.tag}'s ${client.commands.size} Commands`)
             .setTimestamp()
-            .setColor(colour)
+            .setColor(client.primaryColour)
             .setFooter(`Page 1 of ${finalPage} pages`);
         if (commands.length === 0) {
             embed.addField("Empty", "> This page is emtpy!");
