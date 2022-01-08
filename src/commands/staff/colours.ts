@@ -32,7 +32,7 @@ export const command: Command = {
                 return listRoles(client, msg, STORAGE.colourRoles, "Booster Colour Roles");
 
             default:
-                return msg.reply("Please give a choice\n`add <role>`, `remove <role>`, `list`");
+                return client.embedReply(msg, { embed: { description: "Please give a choice\n`add <role>`, `remove <role>`, `list`" } });
         }
     }
 };

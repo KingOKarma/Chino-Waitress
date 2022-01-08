@@ -1,6 +1,5 @@
 import { CONFIG, STORAGE, rolePerms } from "../../globals";
 import { Command } from "../../interfaces";
-import { MessageEmbed } from "discord.js";
 import { getRole } from "../../utils/getRole";
 
 
@@ -24,34 +23,37 @@ export const command: Command = {
         if (!checkNum.exec(number)) {
             const roleList = STORAGE.colourRoles.map((list, index) => `${index + 1} - <@&${list}>\n`);
 
-            const embed = new MessageEmbed()
-                .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
-                .setTitle("List of roles to remove:")
-                .setDescription(`${roleList.join("")}\n \`Using ${CONFIG.prefix}remove <number>\``)
-                .setFooter("You can also get these roles by becoming a booster today!");
-
-            return client.reply(msg, { embeds: [embed] });
+            return client.embedReply(msg, {
+                embed: {
+                    author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                    title: "List of roles to remove",
+                    description: `${roleList.join("")}\n \`Using ${CONFIG.prefix}remove <number>\``,
+                    footer: { text: "You can also get these roles by becoming a booster today!" }
+                }
+            });
         }
         const roleIndex = Number(number) - 1;
         const role = STORAGE.colourRoles[roleIndex];
         const roleInstance = await getRole(role, msg.guild);
 
         if (roleInstance === null) {
-            return client.reply(msg, { content: "That role does not exist" });
+            return client.embedReply(msg, { embed: { description: "That role does not exist" } });
         }
 
         if (!msg.member?.roles.cache.get(role)) {
-            return client.reply(msg, { content: `You do not have the \`${roleInstance.name}\` role` });
+            return client.embedReply(msg, { embed: { description: `You do not have the \`${roleInstance.name}\` role` } });
         }
 
         await msg.member.roles.remove(roleInstance, "They used their booster perks to remove a role");
 
-        const embed = new MessageEmbed()
-            .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
-            .setDescription(`I have removed the ${roleInstance} from **${msg.author.tag}**\n`
-            + `You can claim any other role with \`${CONFIG.prefix}claim <number>\``)
-            .setFooter("You can also get these roles by becoming a booster today!");
 
-        return client.reply(msg, { embeds: [embed] });
+        return client.embedReply(msg, {
+            embed: {
+                author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                description: `I have removed the ${roleInstance} from **${msg.author.tag}**\n`
+                    + `You can claim any other role with \`${CONFIG.prefix}claim <number>\``,
+                footer: { text: "You can also get these roles by becoming a booster today!" }
+            }
+        });
     }
 };

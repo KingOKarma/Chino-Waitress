@@ -27,7 +27,7 @@ export const command: Command = {
                 return listVcs(client, msg, STORAGE.boosterVcs, "Booster Vcs");
 
             default:
-                return msg.reply("Please give a choice\n`add <vc>`, `remove <vc>`, `list`");
+                return client.embedReply(msg, { embed: { description: "Please give a choice\n`add <vc>`, `remove <vc>`, `list`" } });
         }
     }
 };

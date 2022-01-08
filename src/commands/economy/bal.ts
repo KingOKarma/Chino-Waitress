@@ -1,5 +1,4 @@
 import { Command } from "../../interfaces";
-import { MessageEmbed } from "discord.js";
 import { User } from "../../entity/user";
 import { getMember } from "../../utils/getMember";
 import { getRepository } from "typeorm";
@@ -31,15 +30,20 @@ export const command: Command = {
         const user = await userRepo.findOne({ serverId: msg.guild.id, uid: member?.id });
 
         if (user) {
-            const embed = new MessageEmbed()
-                .setColor("BLUE")
-                .setTitle("Currency")
-                .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
-                .setDescription(`User has **${user.balance}🍩** Donuts banked`)
-                .setTimestamp();
-            return client.reply(msg, { embeds: [embed] });
+            return client.embedReply(msg, {
+                embed: {
+                    title: "Currency",
+                    author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                    description: `${member?.user} has **${user.balance}🍩** Donuts banked`,
+                    timestamp: msg.createdTimestamp
+                }
+            });
         }
 
-        return client.reply(msg, { content: "Whoops error ```user not found``` \nThey may not have any money stored" });
+        return client.embedReply(msg, {
+            embed: {
+                description: "Whoops error \n```User not found``` \nThey may not have any money stored"
+            }
+        });
     }
 };

@@ -1,6 +1,5 @@
 import { CONFIG, STORAGE, rolePerms } from "../../globals";
 import { Command } from "../../interfaces";
-import { MessageEmbed } from "discord.js";
 import { getRole } from "../../utils/getRole";
 
 
@@ -26,13 +25,14 @@ export const command: Command = {
         if (!checkNum.exec(number)) {
             const roleList = STORAGE.colourRoles.map((list: string, index: number) => `${index + 1} - <@&${list}>\n`);
 
-            const embed = new MessageEmbed()
-                .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
-                .setTitle("Your Claimable Rewards:")
-                .setDescription(`${roleList.join("")}\n \`Using ${CONFIG.prefix}claim <number>\``)
-                .setFooter("You can also get these roles by becoming a booster today!");
-
-            return client.reply(msg, { embeds: [embed] });
+            return client.embedReply(msg, {
+                embed: {
+                    author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                    title: "Your Claimable Rewards",
+                    description: `${roleList.join("")}\n \`Using ${CONFIG.prefix}claim <number>\``,
+                    footer: { text: "You can also get these roles by becoming a booster today!" }
+                }
+            });
         }
 
         const roleIndex = Number(number) - 1;
@@ -40,11 +40,11 @@ export const command: Command = {
         const roleInstance = await getRole(role, msg.guild);
 
         if (!roleInstance) {
-            return client.reply(msg, { "content": "That role does not exist" });
+            return client.embedReply(msg, { "embed": { description: "That role does not exist" } });
         }
 
         if (msg.member.roles.cache.get(role)) {
-            return client.reply(msg, { "content": `You already have the \`${roleInstance.name}\` role` });
+            return client.embedReply(msg, { "embed": { description: `You already have the \`${roleInstance.name}\` role` } });
         }
 
         const memRoles = msg.member.roles.cache;
@@ -67,13 +67,14 @@ export const command: Command = {
 
         await msg.member.roles.add(roleInstance, "They used their booster perks");
 
-        const embed = new MessageEmbed()
-            .setAuthor(msg.author.tag, msg.author.displayAvatarURL({ dynamic: true }))
-            .setTitle(`You have just Claimed the ${roleInstance.name} Role`)
-            .setDescription(`**${msg.author.tag}** has claimed ${roleInstance}\nYou`
-                + ` can remove ${roleInstance} with \`${CONFIG.prefix}remove <number>\``)
-            .setFooter("You can also get these roles by becoming a booster today!");
-
-        return client.reply(msg, { embeds: [embed] });
+        return client.embedReply(msg, {
+            embed: {
+                author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                title: `You have just Claimed the ${roleInstance.name} Role`,
+                description: `**${msg.author.tag}** has claimed ${roleInstance}\nYou`
+                    + ` can remove ${roleInstance} with \`${CONFIG.prefix}remove <number>\``,
+                footer: { "text": "You can also get these roles by becoming a booster today!" }
+            }
+        });
     }
 };

@@ -1,7 +1,6 @@
 import { CONFIG, rolePerms } from "../../globals";
 import { Command } from "../../interfaces";
 import { Inventory } from "../../entity/inventory";
-import { MessageEmbed } from "discord.js";
 import { User } from "../../entity/user";
 import { getRepository } from "typeorm";
 
@@ -37,7 +36,7 @@ export const command: Command = {
         }
 
         if (!inv) {
-            return client.reply(msg, { content: "You don't seem to have an inventory, make sure to buy something from the shop first!" });
+            return client.embedReply(msg, { embed: { description: "You don't seem to have an inventory, make sure to buy something from the shop first!" } });
         }
 
         const index = inv.items.indexOf(itemName, 0);
@@ -48,15 +47,15 @@ export const command: Command = {
 
         const guildicon = msg.guild.iconURL({ dynamic: true });
 
-
-        const embed = new MessageEmbed()
-            .setThumbnail(guildicon ?? "")
-            .setColor("BLUE")
-            .setTitle("Currency")
-            .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
-            .setDescription(`The item **${itemName}** was ysed by **${msg.author.tag}** (${msg.author.id}) in **${msg.guild.name}** (${msg.guild.id})`)
-            .setFooter(`You can use ${CONFIG.prefix}inv to check what other items you have`)
-            .setTimestamp();
-        return client.reply(msg, { embeds: [embed] });
+        return client.embedReply(msg, {
+            embed: {
+                author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                title: "Currency",
+                thumbnail: { url: guildicon ?? "" },
+                description: `The item **${itemName}** was ysed by **${msg.author.tag}** (${msg.author.id}) in **${msg.guild.name}** (${msg.guild.id})`,
+                footer: { "text": `You can use \`${CONFIG.prefix}inv\` to check what other items you have` },
+                timestamp: msg.createdTimestamp
+            }
+        });
     }
 };

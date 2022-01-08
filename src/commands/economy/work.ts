@@ -1,7 +1,6 @@
 import { CONFIG, STORAGE, rolePerms } from "../../globals";
 import { Command } from "../../interfaces";
 import { Guild } from "../../entity/guild";
-import { MessageEmbed } from "discord.js";
 import { User } from "../../entity/user";
 import { getRepository } from "typeorm";
 import ms from "ms";
@@ -60,7 +59,7 @@ export const command: Command = {
         if (found && !isdev) {
             const timePassed = Date.now() - found;
             const timeLeft = timeout - timePassed;
-            return client.reply(msg, { content: `**Whoa there you're a bit too fast there. you gotta wait another ${ms(timeLeft)}!**` });
+            return client.embedReply(msg, { embed: { description: `**Whoa there you're a bit too fast there. you gotta wait another ${ms(timeLeft)}!**` } });
         }
 
         const earn = Math.floor(Math.random() * 500 + 100);
@@ -82,12 +81,14 @@ export const command: Command = {
             const replace = new RegExp("{bal}", "g");
             response = response.replace(replace, bal);
         }
-        const embed = new MessageEmbed();
 
-        embed.setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag });
-        embed.setTitle("Working Hours");
-        embed.setDescription(response);
-        embed.setFooter("Donuts Currency is only available for server boosters!");
-        return client.reply(msg, { embeds: [embed] });
+        return client.embedReply(msg, {
+            embed: {
+                author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                title: "Working Hours",
+                description: response,
+                footer: { text: "Donuts Currency is only available for server boosters!" }
+            }
+        });
     }
 };

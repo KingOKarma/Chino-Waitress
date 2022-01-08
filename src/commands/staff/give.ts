@@ -1,5 +1,4 @@
 import { Command } from "../../interfaces";
-import { MessageEmbed } from "discord.js";
 import { User } from "../../entity/user";
 import { getMember } from "../../utils/getMember";
 import { getRepository } from "typeorm";
@@ -47,12 +46,14 @@ export const command: Command = {
         user.balance += Number(amount);
         await userRepo.save(user);
 
-        const embed = new MessageEmbed()
-            .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
-            .setTitle("User Give")
-            .setDescription(`I have given **${amount}🍩** to \`${member.user.tag}\` they now have **${userBal}**🍩 Donuts`)
-            .setFooter(`Given by ${msg.author.tag}`)
-            .setTimestamp();
-        return client.reply(msg, { embeds: [embed] });
+        return client.embedReply(msg, {
+            embed: {
+                author: { iconURL: member.user.displayAvatarURL({ dynamic: true }), name: member.user.tag },
+                title: "User Give",
+                description: `I have given **${amount}🍩** to \`${member.user.tag}\` they now have **${userBal}**🍩 Donuts`,
+                footer: { text: `Given by ${msg.author.tag}` },
+                timestamp: msg.createdTimestamp
+            }
+        });
     }
 };

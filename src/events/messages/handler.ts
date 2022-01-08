@@ -40,43 +40,51 @@ export async function commandHandler(client: ExtendedClient, msg: Message): Prom
 
         if (command.guildOnly ?? false) {
             if (!msg.member) {
-                return client.reply(msg, { content: "This Command can only be used inside of servers!" } );
+                return client.embedReply(msg, { embed: { description: "This Command can only be used inside of servers!" } });
             }
         }
 
         if (command.dmOnly ?? false) {
             if (msg.member) {
-                return client.reply(msg, { content: "This Command can only be used inside of DMs!" } );
+                return client.embedReply(msg, { embed: { description: "This Command can only be used inside of DMs!" } });
             }
         }
 
         if (command.boosterOnly ?? false) {
 
             if (!checkRoles(msg.member, STORAGE.allowedRoles)) {
-                return client.reply(msg, { content: `You do not have permission to use this command ${msg.member},\n`
-                + "This command is for server boosters only!" });
+                return client.embedReply(msg, {
+                    embed: {
+                        description: `You do not have permission to use this command ${msg.member},\n`
+                            + "This command is for server boosters only!"
+                    }
+                });
             }
         }
 
         if (command.staffOnly ?? false) {
 
             if (!checkRoles(msg.member, STORAGE.staffRoles)) {
-                return client.reply(msg, { content: `You do not have permission to use this command ${msg.member},\n`
-            + "This command may only be used by staff members!" });
+                return client.embedReply(msg, {
+                    embed: {
+                        description: `You do not have permission to use this command ${msg.member},\n`
+                            + "This command may only be used by staff members!"
+                    }
+                });
             }
         }
 
         const userPerms = formatPermsArray(command.permissionsUser as PermissionString[]);
 
         if (!(msg.member?.permissions.has(command.permissionsUser ?? []) ?? false)) {
-            return msg.reply({ content: `You require! the permission(s)\n> ${userPerms}\nTo use this command` });
+            return client.embedReply(msg, { embed: { description: `You require! the permission(s)\n> ${userPerms}\nTo use this command` } });
 
         }
 
         const clientPerms = formatPermsArray(command.permissionsBot as PermissionString[]);
 
         if (!(msg.guild.me?.permissions.has(command.permissionsBot ?? []) ?? false)) {
-            return msg.reply({ content: `I require! the permission(s)\n> ${clientPerms}\nTo use this command` });
+            return client.embedReply(msg, { embed: { description: `I require! the permission(s)\n> ${clientPerms}\nTo use this command` } });
 
         }
 
@@ -93,7 +101,7 @@ export async function commandHandler(client: ExtendedClient, msg: Message): Prom
                     response = response.replace(replace, ms(timeLeft));
                 }
 
-                return msg.reply(response);
+                return client.embedReply(msg, { embed: { description: response } });
             }
             client.cooldowns.set(`${command.name}/${msg.author.id}`, {
                 command: command.name,
@@ -107,7 +115,7 @@ export async function commandHandler(client: ExtendedClient, msg: Message): Prom
             }, command.cooldown * 1000);
         }
 
-        if (!shouldrun) return msg.reply(reason);
+        if (!shouldrun) return client.embedReply(msg, { embed: { description: reason } });
 
         command.run(client, msg, args);
 

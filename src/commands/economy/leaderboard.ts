@@ -1,6 +1,6 @@
 import { CONFIG, rolePerms } from "../../globals";
 import { Command } from "../../interfaces";
-import { MessageEmbed } from "discord.js";
+import { EmbedFieldData } from "discord.js";
 import { User } from "../../entity/user";
 import { arrayPage } from "../../utils/arrayPage";
 import { getRepository } from "typeorm";
@@ -37,17 +37,22 @@ export const command: Command = {
 
         const authorPost = users.find((user) => user.uid === msg.author.id);
 
-        if (authorPost === undefined) return client.reply(msg, { content: "There was a problem getting your user from the database, try again!" });
+        if (authorPost === undefined) return client.embedReply(msg, { embed: { description: "There was a problem getting your user from the database, try again!" } });
 
-        if (iteamsPaged.length === 0) return client.reply(msg, { content: "There are no members on that page" });
+        if (iteamsPaged.length === 0) return client.embedReply(msg, { embed: { description: "There are no members on that page" } });
 
-        const embed = new MessageEmbed()
-            .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
-            .setTitle(`${msg.guild.name}'s Leaderboard`)
-            .setDescription(`You are: **${authorPost.tag}**\n with \`${authorPost.balance}\`🍩 Donuts`)
-            .setFooter(`You can find the next page with ${CONFIG.prefix}lb <page_number>`);
-        iteamsPaged.forEach((user) => embed.addField(user.tag, `**${user.balance}**🍩 Donuts`, true));
+        const fields: EmbedFieldData[] = [];
+        iteamsPaged.forEach((user) => fields.push({ name: user.tag, value: `**${user.balance}**🍩 Donuts`, inline: true }));
 
-        return client.reply(msg, { embeds: [embed] });
+
+        return client.embedReply(msg, {
+            embed: {
+                author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                title: `${msg.guild.name}'s Leaderboard`,
+                description: `You are: **${authorPost.tag}**\n with \`${authorPost.balance}\`🍩 Donuts`,
+                footer: { text: `You can find the next page with \`${CONFIG.prefix}lb <page_number>\`` },
+                fields
+            }
+        });
     }
 };

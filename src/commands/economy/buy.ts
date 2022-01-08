@@ -3,7 +3,6 @@ import { Command } from "../../interfaces";
 import { Guild } from "../../entity/guild";
 import { Inventory } from "../../entity/inventory";
 import { ItemMeta } from "../../entity/item";
-import { MessageEmbed } from "discord.js";
 import { User } from "../../entity/user";
 import { getRepository } from "typeorm";
 
@@ -33,7 +32,7 @@ export const command: Command = {
         const inv = await invRepo.findOne({ serverid: msg.guild.id, uid: msg.author.id });
 
         if (!item) {
-            return client.reply(msg, { content: "That item does not exist in the shop, try again with the exact name!" });
+            return client.embedReply(msg, { embed: { description: "That item does not exist in the shop, try again with the exact name!" } });
         }
 
         if (!user) {
@@ -48,14 +47,17 @@ export const command: Command = {
         }
 
         if (user.balance < item.price) {
-            return client.reply(msg, { content: `You don't have enough Donuts for **${item.name}**!` });
+            return client.embedReply(msg, { embed: { description: `You don't have enough Donuts for **${item.name}**!` } });
         }
 
         if (item.max === 0) {
-            return client.reply(msg, { content:
-                `Sorry there are no more **${itemName}'s** left in stock!`
-                + `\nPlease ask a server manager to add to the stock with \`${CONFIG.prefix}addstock\`!`
-                + "```diff\n- OUT OF STOCK```"
+            return client.embedReply(msg, {
+                embed: {
+                    description:
+                        `Sorry there are no more **${itemName}'s** left in stock!`
+                        + `\nPlease ask a server manager to add to the stock with \`${CONFIG.prefix}addstock\`!`
+                        + "```diff\n- OUT OF STOCK```"
+                }
             });
         }
 
@@ -81,14 +83,13 @@ export const command: Command = {
             guildicon = "";
         }
 
-        const embed = new MessageEmbed()
-            .setThumbnail(guildicon)
-            .setColor("BLUE")
-            .setTitle("Currency")
-            .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
-            .setDescription(`You just bought **${itemName}**, You can find it with \`${CONFIG.prefix}inv\`!`)
-            .setFooter(`You can use ${CONFIG.prefix}inv to check what items you have`)
-            .setTimestamp();
-        return client.reply(msg, { embeds: [embed] });
+        return client.embedReply(msg, { embed: {
+            author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+            thumbnail: { url: guildicon },
+            title: "Currency",
+            description: `You just bought **${itemName}**, You can find it with \`${CONFIG.prefix}inv\`!`,
+            footer: { text: `You can use ${CONFIG.prefix}inv to check what items you have` },
+            timestamp: msg.createdTimestamp
+        } });
     }
 };

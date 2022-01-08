@@ -1,5 +1,5 @@
-import { Message, MessageEmbed } from "discord.js";
 import ExtendedClient from "../../client/client";
+import { Message } from "discord.js";
 import Storage from "../../storage";
 import { getVc } from "../../utils/getVC";
 
@@ -19,7 +19,7 @@ export async function addVc(
 
     const vc = await getVc(rid, msg.guild);
     if (!vc) {
-        return client.reply(msg, { content: "Please use the ID of a voice channel" });
+        return client.embedReply(msg, { embed: { description: "Please use the ID of a voice channel" } });
     }
 
 
@@ -27,16 +27,18 @@ export async function addVc(
 
     // Checks if the role they want to add is already added
     if (array.includes(vcID)) {
-        return client.reply(msg, { content: `\`${vc.name}\` is already on the list! ❌` });
+        return client.embedReply(msg, { embed: { description: `\`${vc.name}\` is already on the list! ❌` } });
     }
 
     // Otherwise finally add it to the list
     array.push(vcID);
     Storage.saveConfig();
 
-    return client.reply(msg, {
-        content:
-            `I have added the role \`${vc.name}\` to the list! ✅`
+    return client.embedReply(msg, {
+        embed: {
+            description:
+                `I have added the role \`${vc.name}\` to the list! ✅`
+        }
     });
 }
 
@@ -56,7 +58,7 @@ export async function removeVc(
 
     // Checks if the role they want to add is already added
     if (!array.includes(vc)) {
-        return client.reply(msg, { content: `\`<#${vc}>\` is not on the list! ❌` });
+        return client.embedReply(msg, { embed: { description: `\`<#${vc}>\` is not on the list! ❌` } });
     }
 
     // Checks the location in the array for the role
@@ -66,9 +68,11 @@ export async function removeVc(
     array.splice(roleIndex, 1);
     Storage.saveConfig();
 
-    return client.reply(msg, {
-        content:
-            `I have removed the vc \`<#${vc}> \` from the list ✅`
+    return client.embedReply(msg, {
+        embed: {
+            description:
+                `I have removed the vc \`<#${vc}> \` from the list ✅`
+        }
     });
 }
 
@@ -86,22 +90,26 @@ export async function listVcs(
     title: string
 ): Promise<void | Message> {
     if (!array.length) {
-        return client.reply(msg, {
-            content:
-                "The list is currently emtpy! use boostvc add <vcID>"
-                + "to add a vc to the list!"
+        return client.embedReply(msg, {
+            embed: {
+                description:
+                    "The list is currently emtpy! use boostvc add <vcID>"
+                    + "to add a vc to the list!"
+            }
         });
     }
 
     const roleList = array.map((list) => `○ ${msg.guild?.channels.resolve(list)?.name ?? list}\n`);
-    const embed = new MessageEmbed()
-        .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
-        .setTitle(title)
-        .setTimestamp()
-        .setDescription(roleList.join(""));
 
     try {
-        return await client.reply(msg, { embeds: [embed] });
+        return await client.embedReply(msg, {
+            embed: {
+                author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                title,
+                timestamp: msg.createdTimestamp,
+                description: roleList.join("")
+            }
+        });
     } catch (_) {
         const roles = roleList.join("");
         return client.reply(msg, { content: `listed Vcs:\n ${roles}` });

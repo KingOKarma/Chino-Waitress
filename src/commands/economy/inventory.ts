@@ -1,8 +1,8 @@
 import { Command } from "../../interfaces";
+import { EmbedFieldData } from "discord.js";
 import { Guild } from "../../entity/guild";
 import { Inventory } from "../../entity/inventory";
 import { ItemMeta } from "../../entity/item";
-import { MessageEmbed } from "discord.js";
 import { arrayPage } from "../../utils/arrayPage";
 import { getRepository } from "typeorm";
 import { rolePerms } from "../../globals";
@@ -32,40 +32,51 @@ export const command: Command = {
         const itemList = await invRepo.findOne({ serverid: msg.guild.id, uid: msg.author.id });
 
         if (!itemList) {
-            return client.reply(msg, { content: "You have no items in your inventory, you can buy them from the server shop!" });
+            return client.embedReply(msg, { embed: { description: "You have no items in your inventory, you can buy them from the server shop!" } });
         }
 
         if (!guild) {
-            return client.reply(msg, { content: "A shop has not been setup in this server, please ask a server manager to do so" });
+            return client.embedReply(msg, { embed: { description: "A shop has not been setup in this server, please ask a server manager to do so" } });
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
         const iteamsPaged = arrayPage(itemList.items, 9, Number(page ?? 1));
 
         if (iteamsPaged.length === 0) {
-            return client.reply(msg, { content: "There are no items on that page" });
+            return client.embedReply(msg, { embed: { description: "There are no items on that page" } });
         }
 
         const guildicon = msg.guild.iconURL({ dynamic: true });
 
-        const embed = new MessageEmbed();
+        const fields: EmbedFieldData[] = [];
+        const promise = new Promise<void>((resolve, reject) => {
+            iteamsPaged.forEach(async (i) => {
 
-        // eslint-disable-next-line no-restricted-syntax
-        for (const item of iteamsPaged) {
-            // eslint-disable-next-line no-await-in-loop
-            const itemInfo = await itemsRepo.findOne({ guild, name: item });
-            if (!itemInfo) {
-                return client.reply(msg, { content: "An item in the server could not be found" });
-            }
-            embed.addField(`${item}`, itemInfo.description);
+                const itemInfo = await itemsRepo.findOne({ guild, name: i });
+                if (!itemInfo) {
+                    return void reject(i);
+                }
+
+                fields.push({ name: i, value: itemInfo.description });
+
+            });
+        });
+
+        try {
+            await promise;
+        } catch (err) {
+            return client.embedReply(msg, { embed: { description: `The item **${err}** could not be found` } });
         }
 
-        embed.setColor("BLUE");
-        embed.setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag });
-        embed.setTitle("Inventory");
-        embed.setFooter("If there is a problem with an item please report it's ID number to the dev");
-        embed.setThumbnail(guildicon ?? "");
 
-        return client.reply(msg, { embeds: [embed] });
+        return client.embedReply(msg, {
+            embed: {
+                author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                title: "Inventory",
+                footer: { text: "If there is a problem with an item please report it's ID number to the dev" },
+                thumbnail: { url: guildicon ?? "" },
+                fields
+            }
+        });
     }
 };

@@ -32,7 +32,7 @@ export const command: Command = {
                 return listList(client, msg, STORAGE.workResponses, "Work Responses");
 
             default:
-                return msg.reply("Please give a choice `add <string>`, `remove <number>`, `list`");
+                return client.embedReply(msg, { embed: { description: "Please give a choice `add <string>`, `remove <number>`, `list`" } });
         }
     }
 };

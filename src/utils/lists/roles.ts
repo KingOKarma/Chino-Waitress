@@ -1,5 +1,5 @@
-import { Message, MessageEmbed } from "discord.js";
 import ExtendedClient from "../../client/client";
+import { Message } from "discord.js";
 import Storage from "../../storage";
 import { getRole } from "../../utils/getRole";
 
@@ -22,22 +22,24 @@ export async function addRole(
 
     // If the first argument is the @everyone id or undefined return
     if (!role || rid === msg.guild?.id) {
-        return client.reply(msg, { content: "That' not a role! ❌" });
+        return client.embedReply(msg, { embed: { description: "That' not a role! ❌" } });
     }
 
     const roleID: string = role.id;
 
     // Checks if the role they want to add is already added
     if (array.includes(roleID)) {
-        return client.reply(msg, { content: `\`${role.name}\` is already on the list! ❌` });
+        return client.embedReply(msg, { embed: { description: `\`${role.name}\` is already on the list! ❌` } });
     }
 
     // Checks if the role they want to add is already on the "removal" list
     if (array2.includes(roleID)) {
-        return client.reply(msg, {
-            content:
-                `\`${role.name}\` is on the other role list, adding this to the`
-                + " current list would break the system! ❌"
+        return client.embedReply(msg, {
+            embed: {
+                description:
+                    `\`${role.name}\` is on the other role list, adding this to the`
+                    + " current list would break the system! ❌"
+            }
         });
     }
 
@@ -45,9 +47,11 @@ export async function addRole(
     array.push(roleID);
     Storage.saveConfig();
 
-    return client.reply(msg, {
-        content:
-            `I have added the role \`${role.name}\` to the list! ✅`
+    return client.embedReply(msg, {
+        embed: {
+            description:
+                `I have added the role \`${role.name}\` to the list! ✅`
+        }
     });
 }
 
@@ -68,20 +72,22 @@ export async function removeRole(
     const role = await getRole(rid ?? "none", msg.guild);
     // If the first argument is the @everyone id or undefined return
     if (!role || rid === msg.guild?.id) {
-        return msg.reply("That' not a role! ❌");
+        return client.embedReply(msg, { embed: { description: "That' not a role! ❌" } });
     }
 
     // Checks if the role they want to add is already added
     if (!array.includes(role.id)) {
-        return client.reply(msg, { content: `\`${role.name}\` is not on the list! ❌` });
+        return client.embedReply(msg, { embed: { description: `\`${role.name}\` is not on the list! ❌` } });
     }
 
     // Checks if the role they want to add is already on the other list
     if (array2.includes(role.id)) {
-        return client.reply(msg, {
-            content:
-                `\`${role.name}\` is on the remove role list, adding this to the`
-                + " list would break the system! ❌"
+        return client.embedReply(msg, {
+            embed: {
+                description:
+                    `\`${role.name}\` is on the remove role list, adding this to the`
+                    + " list would break the system! ❌"
+            }
         });
     }
     // Checks the location in the array for the role
@@ -91,11 +97,13 @@ export async function removeRole(
     array.splice(roleIndex, 1);
     Storage.saveConfig();
 
-    return client.reply(msg, {
-        content:
-            `I have removed the role \`${role.name} \` from the list ✅`
-            + `\n*Anyone currently with \`${role.name}\` you will have to`
-            + " remove roles manually*"
+    return client.embedReply(msg, {
+        embed: {
+            description:
+                `I have removed the role \`${role.name} \` from the list ✅`
+                + `\n*Anyone currently with \`${role.name}\` you will have to`
+                + " remove roles manually*"
+        }
     });
 }
 
@@ -113,22 +121,26 @@ export async function listRoles(
     title: string
 ): Promise<void | Message> {
     if (!array.length) {
-        return client.reply(msg, {
-            content:
-                `The list is currently emtpy! use ${title}add <role>`
-                + "to add a role to the list!"
+        return client.embedReply(msg, {
+            embed: {
+                description:
+                    `The list is currently emtpy! use ${title}add <role>`
+                    + "to add a role to the list!"
+            }
         });
     }
 
     const roleList = array.map((list) => `○ <@&${list}>\n`);
-    const embed = new MessageEmbed()
-        .setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag })
-        .setTitle(title)
-        .setTimestamp()
-        .setDescription(roleList.join(""));
 
     try {
-        return await client.reply(msg, { embeds: [embed] });
+        return await client.embedReply(msg, {
+            embed: {
+                author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                title,
+                timestamp: msg.createdTimestamp,
+                description: roleList.join("")
+            }
+        });
     } catch (_) {
         const roles = roleList.join("");
         return client.reply(msg, { content: `listed roles:\n ${roles}` });

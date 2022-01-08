@@ -2,7 +2,6 @@ import { CONFIG, rolePerms } from "../../globals";
 import { Command } from "../../interfaces";
 import { Guild } from "../../entity/guild";
 import { ItemMeta } from "../../entity/item";
-import { MessageEmbed } from "discord.js";
 import { getRepository } from "typeorm";
 
 export const command: Command = {
@@ -27,28 +26,33 @@ export const command: Command = {
         const item = await itemsRepo.findOne({ guild, name: itemName });
 
         if (!guild) {
-            return client.reply(msg, { content: `The shop is currently empty please ask someone with "Manage Server" permissions to run \`${CONFIG.prefix}additem\`` });
+            return client.embedReply(msg, { embed: { description: `The shop is currently empty please ask someone with "Manage Server" permissions to run \`${CONFIG.prefix}additem\`` } });
         }
 
         if (!item) {
-            return client.reply(msg, { content: "This item does not exist, make sure you are typing the EXACT name" });
+            return client.embedReply(msg, { embed: { description: "This item does not exist, make sure you are typing the EXACT name" } });
         }
 
         const guildicon = msg.guild.iconURL({ dynamic: true });
 
-        const embed = new MessageEmbed();
-        embed.setColor("BLUE");
-        embed.setAuthor({ "iconURL": msg.author.displayAvatarURL({ dynamic: true }), "name": msg.author.tag });
-        embed.setTitle(`${msg.guild.name}'s Item Info`);
-        embed.addField("Name", `${item.name}`, true);
-        embed.addField("Description", `${item.description}`, true);
-        embed.addField("Price", `${item.price}🍩 Donut(s)`, true);
-        embed.addField("Stock left", `${item.max}`, true);
-        embed.addField("ID", `${item.id}`, true);
+        return client.embedReply(msg, {
+            embed: {
+                author: { iconURL: msg.author.displayAvatarURL({ dynamic: true }), name: msg.author.tag },
+                title: `${msg.guild.name}'s Item Info`,
+                fields: [
+                    { name: "Name", value: item.name, inline: true },
 
-        embed.setFooter("If there is a problem with an item please report it's ID number to the dev");
-        embed.setThumbnail(guildicon ?? "");
+                    { name: "Description", value: item.description, inline: true },
 
-        return client.reply(msg, { embeds: [embed] });
+                    { name: "Price", value: `${item.price}🍩 Donuts`, inline: true },
+
+                    { name: "Stock Left", value: item.max.toString(), inline: true },
+
+                    { name: "ID", value: item.id.toString(), inline: true }
+                ],
+                footer: { text: "If there is a problem with an item please report it's ID number to the dev" },
+                thumbnail: { url: guildicon ?? "" }
+            }
+        });
     }
 };

@@ -1,15 +1,17 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import "reflect-metadata";
-import { Client, Collection, CommandInteraction, Message } from "discord.js";
+import { Client, Collection, ColorResolvable, CommandInteraction, Message, MessageEmbed } from "discord.js";
 import { Command, Event } from "../interfaces/index";
+import { createConnection, getRepository } from "typeorm";
 import fs, { readdirSync } from "fs";
+import { Bot } from "../entity/bot";
 import Buttons from "../interfaces/buttons";
 import { CONFIG } from "../globals";
 import { Cooldowns } from "../interfaces/cooldown";
-import { ReplyEmbedArguments } from "../interfaces/replyCommand";
+import { EmbedReplyEmbedArguments } from "../interfaces/functionInterfaces/embedReplyCommand";
+import { ReplyEmbedArguments } from "../interfaces/functionInterfaces/replyCommand";
 import SelectMenus from "../interfaces/selectMenus";
 import { SlashCommands } from "../interfaces/slashCommands";
-import { createConnection } from "typeorm";
 import path from "path";
 
 class ExtendedClient extends Client {
@@ -20,11 +22,30 @@ class ExtendedClient extends Client {
     public slashCommands: Collection<string, SlashCommands> = new Collection();
     public cooldowns: Collection<string, Cooldowns> = new Collection();
     public selectMenus: Collection<string, SelectMenus> = new Collection();
-    public uptimeTimestamp: number = Date.now();
+    public primaryColour: ColorResolvable = "#000000";
 
     public async init(): Promise<void> {
         await createConnection();
         await this.login(CONFIG.token).catch(console.error);
+
+
+        const botRepo = getRepository(Bot);
+
+        let [bot] = await botRepo.find();
+        // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+        if (bot === undefined) {
+            const newBot = new Bot();
+            await botRepo.save(newBot);
+            bot = newBot;
+        }
+
+        setInterval(async () => {
+            [bot] = await botRepo.find();
+            this.primaryColour = bot.primaryColour as ColorResolvable;
+
+        }, 5000);
+
+        this.primaryColour = bot.primaryColour as ColorResolvable;
 
         /* Commands */
         const commandPath = path.join(__dirname, "..", "commands");
@@ -141,6 +162,63 @@ class ExtendedClient extends Client {
 
     }
 
+    public async embedReply(msg: Message | CommandInteraction, { content, ephemeral, embed, components, files, options, mention }: EmbedReplyEmbedArguments): Promise<void | Message> {
+
+        if (embed instanceof MessageEmbed)
+            if (embed.color === null) embed.setColor(this.primaryColour);
+
+        if (msg instanceof Message) {
+            if (ephemeral === true) console.log("Ephemeral messages can only be used with / commands");
+
+            return msg.reply({
+                allowedMentions: mention ?? false ? { repliedUser: false } : undefined,
+                components,
+                content: content ?? undefined,
+                embeds: embed instanceof MessageEmbed ? [embed] :
+                    [{
+                        "author": embed.author,
+                        "color": embed.color ?? this.primaryColour,
+                        "description": embed.description,
+                        "fields": embed.fields,
+                        "footer": embed.footer,
+                        "image": embed.image,
+                        "thumbnail": embed.thumbnail,
+                        "timestamp": embed.timestamp,
+                        "title": embed.title,
+                        "url": embed.url,
+                        "video": embed.video
+                    }],
+                files,
+                options
+
+            });
+        }
+
+        return msg.reply({
+            allowedMentions: mention ?? false ? { repliedUser: false } : undefined,
+            components,
+            content: content ?? undefined,
+            embeds: embed instanceof MessageEmbed ? [embed] :
+                [{
+                    "author": embed.author,
+                    "color": embed.color ?? this.primaryColour,
+                    "description": embed.description,
+                    "fields": embed.fields,
+                    "footer": embed.footer,
+                    "image": embed.image,
+                    "thumbnail": embed.thumbnail,
+                    "timestamp": embed.timestamp,
+                    "title": embed.title,
+                    "url": embed.url,
+                    "video": embed.video
+                }], ephemeral,
+            files,
+            options
+
+        });
+
+    }
+
     /**
  * Used to create pages from an array
  * @param {Array} array The array to page
@@ -150,6 +228,12 @@ class ExtendedClient extends Client {
  */
     public arrayPage<T>(array: T[], pageSize: number, pageNumber: number): T[] {
         return array.slice((pageNumber - 1) * pageSize, pageNumber * pageSize);
+    }
+
+    public async wait(ms: number): Promise<void> {
+        return new Promise<void>((resolve) => {
+            setTimeout(resolve, ms);
+        });
     }
 
 }

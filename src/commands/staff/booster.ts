@@ -32,7 +32,7 @@ export const command: Command = {
                 return listRoles(client, msg, STORAGE.allowedRoles, "Booster Roles");
 
             default:
-                return client.reply(msg, { content: "Please give a choice\n`add <role>`, `remove <role>`, `list`" });
+                return client.embedReply(msg, { embed: { description: "Please give a choice\n`add <role>`, `remove <role>`, `list`" } });
         }
     }
 };
