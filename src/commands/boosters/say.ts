@@ -14,8 +14,12 @@ export const command: Command = {
     // eslint-disable-next-line sort-keys
     run: async (client, msg, args) => {
 
-        console.log(args);
-        if (args.length === 0) return client.embedReply(msg, { embed: { description: "No message specified" } });
+        let runFail = false;
+        if ([...msg.attachments.values()].length === 0) runFail = true;
+
+        if (args.length === 0) runFail = true;
+
+        if (runFail) return client.embedReply(msg, { embed: { description: "No message specified" } });
 
         await client.reply(msg, { content: args.join(" "), "files": [...msg.attachments.values()] });
         await msg.delete();
