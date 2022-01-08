@@ -15,13 +15,16 @@ export const command: Command = {
     run: async (client, msg, args) => {
 
         let runFail = false;
-        if ([...msg.attachments.values()].length === 0) runFail = true;
 
-        if (args.length === 0) runFail = true;
+        if (args.length === 0 && [...msg.attachments.values()].length === 0) runFail = true;
 
-        if (runFail) return client.embedReply(msg, { embed: { description: "No message specified" } });
+        if (runFail) return client.embedReply(msg, { embed: { description: "No message or attachment provided" } });
 
-        await client.reply(msg, { content: args.join(" "), "files": [...msg.attachments.values()] });
+        if (args.length === 0) await client.reply(msg, { files: [...msg.attachments.values()] });
+
+        else await client.reply(msg, { content: args.join(" "), "files": [...msg.attachments.values()] });
+
+
         await msg.delete();
     }
 };
