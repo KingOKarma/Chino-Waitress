@@ -14,7 +14,7 @@ export const command: Command = {
     // eslint-disable-next-line sort-keys
     run: async (client, msg, args) => {
 
-        args.shift();
+        console.log(args);
         if (args.length === 0) return client.embedReply(msg, { embed: { description: "No message specified" } });
 
         await client.reply(msg, { content: args.join(" "), "files": [...msg.attachments.values()] });
