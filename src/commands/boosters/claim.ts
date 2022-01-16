@@ -5,7 +5,6 @@ import { getRole } from "../../utils/getRole";
 
 export const command: Command = {
     // Note aliases are optional
-    aliases: ["get", "role"],
     boosterOnly: true,
     cooldown: 3,
     cooldownResponse: "Hey there slow down on your roles and wait another {time}",

@@ -5,14 +5,13 @@ import { getRole } from "../../utils/getRole";
 
 export const command: Command = {
     // Note aliases are optional
-    aliases: ["vc", "move"],
     boosterOnly: true,
     cooldown: 3,
     description: "remove's boosters their special roles!",
     example: ["!remove 1"],
     group: "boosters",
     guildOnly: true,
-    name: "remove",
+    name: "removeclaim",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     run: async (client, msg, args) => {

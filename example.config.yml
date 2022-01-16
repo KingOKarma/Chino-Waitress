@@ -9,3 +9,11 @@ prefix: "PREFIX"
 
 # Token Example: NzU4Mzg1STh3MgS5DHCsHsVY.X2uSag.71AkvJZaVe3R-s5Ay3GatchEdGe
 token: "TOKEN"
+
+music:
+    youtubeAPIKey: "API KEY"
+    soundcloudAPIKey: "CLIENT ID (optional)"
+    volume: 100 
+    maxPlaylistSize: 5000
+    pruning: true
+    stayTime: 30

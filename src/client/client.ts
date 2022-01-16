@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import "reflect-metadata";
-import { Client, Collection, ColorResolvable, CommandInteraction, Message, MessageEmbed } from "discord.js";
+import { Client, Collection, ColorResolvable, CommandInteraction, GuildMember, Message, MessageEmbed } from "discord.js";
 import { Command, Event } from "../interfaces/index";
 import { createConnection, getRepository } from "typeorm";
 import fs, { readdirSync } from "fs";
@@ -9,12 +9,16 @@ import Buttons from "../interfaces/buttons";
 import { CONFIG } from "../globals";
 import { Cooldowns } from "../interfaces/cooldown";
 import { EmbedReplyEmbedArguments } from "../interfaces/functionInterfaces/embedReplyCommand";
+import { Queue } from "../interfaces/music/queue";
 import { ReplyEmbedArguments } from "../interfaces/functionInterfaces/replyCommand";
 import SelectMenus from "../interfaces/selectMenus";
 import { SlashCommands } from "../interfaces/slashCommands";
+import { getVoiceConnection } from "@discordjs/voice";
 import path from "path";
 
 class ExtendedClient extends Client {
+
+    // Handlers
     public commands: Collection<string, Command> = new Collection();
     public events: Collection<string, Event> = new Collection();
     public aliases: Collection<string, Command> = new Collection();
@@ -22,7 +26,13 @@ class ExtendedClient extends Client {
     public slashCommands: Collection<string, SlashCommands> = new Collection();
     public cooldowns: Collection<string, Cooldowns> = new Collection();
     public selectMenus: Collection<string, SelectMenus> = new Collection();
+
+    // Saved Cache
     public primaryColour: ColorResolvable = "#000000";
+
+    // Music Module
+    public queue: Collection<string, Queue> = new Collection();
+    public activeCollector: Collection<string, boolean> = new Collection();
 
     public async init(): Promise<void> {
         await createConnection();
@@ -235,6 +245,11 @@ class ExtendedClient extends Client {
             setTimeout(resolve, ms);
         });
     }
+
+    public canModifyQueue = (member: GuildMember | null): boolean => {
+        const connection = getVoiceConnection(member?.guild.id ?? "")?.joinConfig.channelId;
+        return member?.voice.channelId === connection;
+    };
 
 }
 

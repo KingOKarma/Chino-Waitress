@@ -7,6 +7,15 @@ export interface DevEnv {
     isDev: boolean;
 }
 
+interface MusicConf {
+    youtubeAPIKey: string;
+    soundcloudAPIKey: string;
+    volume: number;
+    maxPlaylistSize: number;
+    pruning: boolean;
+    stayTime: number;
+}
+
 /**
  * This represents the config.yml
  * @class Config
@@ -25,11 +34,14 @@ export default class Config {
 
     public readonly token: string;
 
+    public music: MusicConf;
+
     private constructor() {
         this.devEnv = { devServer: "", isDev: false };
         this.owners = [""];
         this.prefix = "";
         this.token = "";
+        this.music = { youtubeAPIKey: "", soundcloudAPIKey: "", volume: 100, maxPlaylistSize: 20, pruning: true, stayTime: 30 };
     }
 
     /**
