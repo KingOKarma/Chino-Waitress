@@ -28,7 +28,6 @@ export async function play(song?: Songs, message?: Message, silent = false, clie
 
     if (!queue) return client.embedReply(message, { embed: { description: "There was an internal error" } }).catch(console.error);
 
-    queue.audioResource?.volume?.setVolumeLogarithmic(queue.volume / 100);
     if (!song) {
         setTimeout(() => {
             if (!guild.me) return client.embedReply(message, { embed: { description: "There was an internal error" } });
@@ -78,6 +77,9 @@ export async function play(song?: Songs, message?: Message, silent = false, clie
         queue.audioResource = resource;
 
         queue.connection.subscribe(player);
+
+        queue.audioResource.volume?.setVolumeLogarithmic(queue.volume / 100);
+
 
         player.play(resource);
 
