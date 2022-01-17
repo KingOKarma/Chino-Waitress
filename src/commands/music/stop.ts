@@ -1,11 +1,11 @@
+import { CONFIG, rolePerms } from "../../globals";
 import { Command } from "../../interfaces";
-import { rolePerms } from "../../globals";
 
 
 export const command: Command = {
     cooldown: 3,
     description: "Stops the music",
-    example: ["!stop"],
+    example: [`${CONFIG.prefix}stop`],
     group: "music",
     guildOnly: true,
     name: "stop",

@@ -31,7 +31,7 @@ export const buttons: Buttons = {
             .setTitle(`${client.user?.tag}'s ${client.commands.size} Commands`)
             .setTimestamp()
             .setColor(client.primaryColour)
-            .setFooter(`Page 1 of ${finalPage} pages`);
+            .setFooter({ text: `Page 1 of ${finalPage} pages` });
         if (commands.length === 0) {
             embed.addField("Empty", "> This page is emtpy!");
         } else {
