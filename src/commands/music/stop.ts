@@ -11,7 +11,7 @@ export const command: Command = {
     name: "stop",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg }) => {
 
         const queue = client.queue.get(msg.guild?.id ?? "");
 

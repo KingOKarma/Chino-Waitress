@@ -11,7 +11,7 @@ export const command: Command = {
     name: "uptime",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg }) => {
 
         let seconds = Math.floor(client.uptime ?? 0 / 1000);
         let minutes = Math.floor(seconds / 60);

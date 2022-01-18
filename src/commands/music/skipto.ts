@@ -12,7 +12,7 @@ export const command: Command = {
     name: "skipto",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg, args }) => {
 
         if (!args.length || isNaN(Number(args[0])))
             return client.embedReply(msg, { embed: { description: `Usage ${command.example[0]}` } }).catch(console.error);

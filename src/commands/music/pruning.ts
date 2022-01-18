@@ -12,7 +12,7 @@ export const command: Command = {
     permissionsBot: rolePerms,
     staffOnly: true,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg }) => {
 
         if (CONFIG.music.pruning)
             CONFIG.music.pruning = false;

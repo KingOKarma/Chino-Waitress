@@ -14,7 +14,7 @@ export const command: Command = {
     name: "voteskip",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg }) => {
         if (guildsList.get(msg.guildId ?? "") ?? false) return;
         guildsList.set(msg.guildId ?? "", true);
 

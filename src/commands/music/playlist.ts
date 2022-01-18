@@ -21,7 +21,7 @@ export const command: Command = {
     name: "playlist",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg, args }) => {
 
         const { guild } = msg;
         if (!msg.member) return client.embedReply(msg, { embed: { description: "There was an internal error" } });

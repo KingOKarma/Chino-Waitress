@@ -18,7 +18,7 @@ export const command: Command = {
     name: "work",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, _args) => {
+    run: async ({ client, msg }) => {
         if (!msg.guild) return;
 
         const devs = CONFIG.owners;

@@ -14,7 +14,7 @@ export const command: Command = {
     group: "Utility",
     name: "help",
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg, args }) => {
 
 
         // eslint-disable-next-line prefer-destructuring

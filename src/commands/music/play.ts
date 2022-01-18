@@ -24,7 +24,7 @@ export const command: Command = {
     name: "play",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg, args }) => {
 
         const { guild } = msg;
         if (!msg.member) return client.embedReply(msg, { embed: { description: "There was an internal error" } });
@@ -64,10 +64,10 @@ export const command: Command = {
         await scdl.setClientID(CONFIG.music.soundcloudAPIKey);
         // Start the playlist if playlist url was provided
         if (!videoPattern.test(args[0]) && playlistPattern.test(args[0])) {
-            return void playlistCmd.run(client, msg, args);
+            return void playlistCmd.run({ client, msg, args });
             // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
         } else if (scdl.isValidUrl(url) && url.includes("/sets/")) {
-            return void playlistCmd.run(client, msg, args);
+            return void playlistCmd.run({ client, msg, args });
         }
 
         if (mobileScRegex.test(url)) {
@@ -77,7 +77,7 @@ export const command: Command = {
                         const playCmd = client.commands.get("play");
                         if (!playCmd) return client.embedReply(msg, { embed: { description: "There was an internal error" } });
 
-                        return void playCmd.run(client, msg, [res.headers.location ?? "404"]);
+                        return void playCmd.run({ client, msg, args: [res.headers.location ?? "404"] });
                     }
                     return client.embedReply(msg, { embed: { description: "Audio Not Found" } }).catch(console.error);
 

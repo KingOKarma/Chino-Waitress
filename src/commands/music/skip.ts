@@ -12,7 +12,7 @@ export const command: Command = {
     name: "skip",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg }) => {
 
         const queue = client.queue.get(msg.guild?.id ?? "");
         if (!queue) return client.embedReply(msg, { embed: { description: "There is nothing playing that I could skip for you." } }).catch(console.error);

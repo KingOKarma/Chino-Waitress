@@ -42,7 +42,7 @@ export const command: Command = {
     name: "queue",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg }) => {
 
         if (!msg.guild) return client.embedReply(msg, { embed: { description: "There was an internal error" } }).catch(console.error);
         if (!msg.guild.me) return client.embedReply(msg, { embed: { description: "There was an internal error" } }).catch(console.error);

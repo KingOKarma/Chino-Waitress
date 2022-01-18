@@ -117,7 +117,7 @@ export async function commandHandler(client: ExtendedClient, msg: Message): Prom
 
         if (!shouldrun) return client.embedReply(msg, { embed: { description: reason } });
 
-        command.run(client, msg, args);
+        command.run({ client, msg, args });
 
     }
 }

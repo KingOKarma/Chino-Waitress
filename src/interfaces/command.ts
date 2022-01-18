@@ -1,8 +1,14 @@
 /* eslint-disable @typescript-eslint/member-ordering */
 import { Message, PermissionResolvable } from "discord.js";
-import Client from "../client/client";
+import ExtendedClient from "../client/client";
 
-type Run = (client: Client, message: Message, args: string[]) => void;
+interface CommandStruc {
+    client: ExtendedClient;
+    msg: Message;
+    args: string[];
+}
+
+type Run = (command: CommandStruc) => void;
 
 export default interface Command {
     boosterOnly?: boolean;

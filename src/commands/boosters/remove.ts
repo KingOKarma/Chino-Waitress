@@ -14,7 +14,7 @@ export const command: Command = {
     name: "removeclaim",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg, args }) => {
         const [number] = args;
         if (!msg.guild) return;
 

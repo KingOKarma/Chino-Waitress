@@ -13,7 +13,7 @@ export const command: Command = {
     name: "clips",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg }) => {
 
         const soundsPath = path.join(__dirname, "..", "..", "..", "sounds");
 

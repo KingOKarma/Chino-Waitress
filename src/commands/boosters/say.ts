@@ -11,7 +11,7 @@ export const command: Command = {
     permissionsBot: rolePerms,
     staffOnly: true,
     // eslint-disable-next-line sort-keys
-    run: async (client, msg, args) => {
+    run: async ({ client, msg, args }) => {
 
         let runFail = false;
 

@@ -16,7 +16,7 @@ export const command: Command = {
     name: "search",
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    run: async (client, msg, args) => {
+    run: async ({ client, msg, args }) => {
 
         if (!args.length)
             return client.embedReply(msg, { embed: { description: `Usage: ${command.example[0]}` } }).catch(console.error);
@@ -57,13 +57,13 @@ export const command: Command = {
                 for (const song of songs) {
                     const playCmd = client.commands.get("play");
                     if (!playCmd) return await client.embedReply(msg, { embed: { description: "Internal error Play command does not exist" } }).catch(console.error);
-                    playCmd.run(client, msg, [resultsEmbed.fields[parseInt(song, 10) - 1].name]);
+                    playCmd.run({ client, msg, args: [resultsEmbed.fields[parseInt(song, 10) - 1].name] });
                 }
             } else {
                 const choice = resultsEmbed.fields[parseInt(reply, 10) - 1].name;
                 const playCmd = client.commands.get("play");
                 if (!playCmd) return await client.embedReply(msg, { embed: { description: "Internal error Play command does not exist" } }).catch(console.error);
-                playCmd.run(client, msg, [choice]);
+                playCmd.run({ client, msg, args: [choice] });
             }
 
             client.activeCollector.set(msg.channelId, false);
