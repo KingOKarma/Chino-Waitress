@@ -1,6 +1,8 @@
 import { CONFIG, rolePerms } from "../../globals";
-import { GuildMember, Message, MessageReaction, User } from "discord.js";
+import { Collection, GuildMember, Message, MessageReaction, User } from "discord.js";
 import { Command } from "../../interfaces";
+
+const guildsList: Collection<string, boolean> = new Collection();
 
 export const command: Command = {
     aliases: ["vs"],
@@ -13,13 +15,16 @@ export const command: Command = {
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     run: async (client, msg, args) => {
+        if (guildsList.get(msg.guildId ?? "") ?? false) return;
+        guildsList.set(msg.guildId ?? "", true);
 
         const queue = client.queue.get(msg.guild?.id ?? "");
         if (!queue) return client.embedReply(msg, { embed: { description: "There is nothing playing that I could skip for you." } }).catch(console.error);
 
         const [song] = queue.songs;
+        const memberSize = queue.channel.members.size;
         if (!client.canModifyQueue(msg.member)) return client.embedReply(msg, { embed: { description: `${msg.author} You need to join a voice channel first!` } }).catch(console.error);
-        const message = await client.embedReply(msg, { embed: { description: `${msg.author} has requested to voteskip **[${song.title}](${song.url})**!` } });
+        const message = await client.embedReply(msg, { embed: { description: `${msg.author} has requested to voteskip **[${song.title}](${song.url})**!\n\nWe need **${Math.round((memberSize - 1) / 2)}** votes to skip` } });
         if (!(message instanceof Message)) return client.embedReply(msg, { embed: { description: "There was an internal error" } });
 
         await message.react("⏩");
@@ -30,6 +35,8 @@ export const command: Command = {
         }
         );
         let totalSkips = 0;
+        let shouldEnd = true;
+
         collector.on("collect", async (reaction, user) => {
             let member: GuildMember | undefined;
 
@@ -43,16 +50,26 @@ export const command: Command = {
 
             switch (reaction.emoji.name) {
                 case "⏩": {
+
                     if (!client.canModifyQueue(member)) {
                         return reaction.remove();
                     }
-                    const memberSize = queue.channel.members.size;
+
+                    if (!shouldEnd) break;
+
+                    const vcSize = queue.channel.members.size;
                     totalSkips++;
 
-                    if (totalSkips >= Math.round((memberSize + 1) / 2))
+                    if (totalSkips >= Math.round((vcSize - 1) / 2)) {
                         queue.playing = true;
-                    queue.audioResource?.audioPlayer?.stop();
-                    client.embedReply(msg, { embed: { description: "⏩ Voteskip Successful! Skipping the current song..." } }).catch(console.error);
+                        queue.audioResource?.audioPlayer?.stop();
+                        shouldEnd = false;
+                        guildsList.delete(msg.guildId ?? "");
+                        return client.embedReply(msg, { embed: { description: "⏩ Voteskip Successful! Skipping the current song..." } }).catch(console.error);
+
+                    }
+                    break;
+
 
                 }
                 default: {
@@ -63,8 +80,10 @@ export const command: Command = {
 
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         collector.on("end", (collected, reason) => {
-            const memberSize = queue.channel.members.size;
-            if (!(totalSkips >= Math.round((memberSize + 1) / 2))) {
+            if (guildsList.get(msg.guildId ?? "") ?? false) return;
+
+            if (shouldEnd) {
+                guildsList.delete(msg.guildId ?? "");
                 return client.embedReply(msg, { embed: { description: "🚫 Vote Skip has failed." } } );
             }
 
