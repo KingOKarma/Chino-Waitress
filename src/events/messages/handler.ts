@@ -32,7 +32,7 @@ export async function commandHandler(client: ExtendedClient, msg: Message): Prom
         }
 
         if (command.devonly === true) {
-            if (CONFIG.owners.some((d) => d === msg.author.id)) {
+            if (!CONFIG.owners.includes(msg.author.id)) {
                 shouldrun = false;
                 reason = "You must be a deveoper to run this command!";
             }
