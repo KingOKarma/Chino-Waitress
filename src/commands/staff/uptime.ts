@@ -12,8 +12,9 @@ export const command: Command = {
     permissionsBot: rolePerms,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     run: async ({ client, msg }) => {
-
-        let seconds = Math.floor(client.uptime ?? 0 / 1000);
+        if (client.uptime === null) return client.embedReply(msg, { embed: { description: "There was an Internal Error!" } } );
+        const { uptime } = client;
+        let seconds = Math.floor(uptime / 1000);
         let minutes = Math.floor(seconds / 60);
         let hours = Math.floor(minutes / 60);
         const days = Math.floor(hours / 24);
