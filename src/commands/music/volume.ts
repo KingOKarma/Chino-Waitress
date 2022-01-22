@@ -6,6 +6,7 @@ export const command: Command = {
     aliases: ["v"],
     cooldown: 3,
     description: "Change volume of currently playing music",
+    djMode: true,
     example: ["!stop"],
     group: "music",
     guildOnly: true,

@@ -6,6 +6,7 @@ export const command: Command = {
     aliases: ["r"],
     cooldown: 5,
     description: "Resume currently playing music",
+    djMode: true,
     example: ["!resume"],
     group: "music",
     guildOnly: true,

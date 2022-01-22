@@ -6,6 +6,7 @@ export const command: Command = {
     aliases: ["st"],
     cooldown: 3,
     description: "Skip to the selected queue number",
+    djMode: true,
     example: ["!skipto <Queue Number>"],
     group: "music",
     guildOnly: true,

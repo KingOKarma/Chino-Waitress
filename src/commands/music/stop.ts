@@ -5,6 +5,7 @@ import { Command } from "../../interfaces";
 export const command: Command = {
     cooldown: 3,
     description: "Stops the music",
+    djMode: true,
     example: [`${CONFIG.prefix}stop`],
     group: "music",
     guildOnly: true,

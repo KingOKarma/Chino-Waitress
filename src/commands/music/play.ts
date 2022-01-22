@@ -18,6 +18,7 @@ export const command: Command = {
     aliases: ["p"],
     cooldown: 3,
     description: "Plays audio from YouTube or Soundcloud",
+    djMode: true,
     example: ["!play <YouTube URL | Video Name | Soundcloud URL"],
     group: "music",
     guildOnly: true,

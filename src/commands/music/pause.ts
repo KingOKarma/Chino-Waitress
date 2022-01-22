@@ -5,6 +5,7 @@ import { rolePerms } from "../../globals";
 export const command: Command = {
     cooldown: 3,
     description: "Pause the currently playing music",
+    djMode: true,
     example: ["!pause"],
     group: "music",
     guildOnly: true,

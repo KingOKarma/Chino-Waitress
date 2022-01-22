@@ -22,6 +22,12 @@ export class Guild {
     @Column({ nullable: true })
     prefix!: string;
 
+    @Column({ default: false })
+    public djMode!: boolean;
+
+    @Column("text", { array: true, default: [] } )
+    public djRoles!: string[];
+
     @OneToMany(() => ItemMeta, (itemMeta) => itemMeta.guild)
     shop!: ItemMeta[];
 }

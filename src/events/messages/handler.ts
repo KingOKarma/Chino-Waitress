@@ -1,8 +1,10 @@
 import { CONFIG, STORAGE } from "../../globals";
 import { Message, PermissionString } from "discord.js";
+import { Guild as DBGuild } from "../../entity/guild";
 import ExtendedClient from "../../client/client";
 import { checkRoles } from "../../utils/checkRoles";
 import { formatPermsArray } from "../../utils/formatPermsArray";
+import { getRepository } from "typeorm";
 import ms from "ms";
 
 
@@ -113,6 +115,24 @@ export async function commandHandler(client: ExtendedClient, msg: Message): Prom
             setTimeout(() => {
                 client.cooldowns.delete(`${command.name}/${msg.author.id}`);
             }, command.cooldown * 1000);
+        }
+
+        if (command.djMode ?? false) {
+            const guildRepo = getRepository(DBGuild);
+
+            const dbGuild = await guildRepo.findOne({ where: { serverid: msg.guildId } });
+
+            if (!dbGuild) return client.embedReply(msg, { embed: { description: "There was an internal error!" } } );
+
+            if (dbGuild.djMode) {
+                const roles = msg.member?.roles.cache ?? [];
+
+                if (!roles.some((r) => dbGuild.djRoles.includes(r.id))) {
+                    shouldrun = false;
+                    reason = "You must have a DJ Role to use this command!";
+                }
+            }
+
         }
 
         if (!shouldrun) return client.embedReply(msg, { embed: { description: reason } });

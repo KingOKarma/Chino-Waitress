@@ -9,6 +9,7 @@ export const command: Command = {
     aliases: ["rm"],
     cooldown: 5,
     description: "Remove song from the queue",
+    djMode: true,
     example: ["!remove <Queue Number>"],
     group: "music",
     guildOnly: true,

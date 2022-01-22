@@ -5,6 +5,7 @@ import { rolePerms } from "../../globals";
 export const command: Command = {
     cooldown: 5,
     description: "Shuffle queue",
+    djMode: true,
     example: ["!shuffle"],
     group: "music",
     guildOnly: true,

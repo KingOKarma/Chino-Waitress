@@ -6,6 +6,7 @@ export const command: Command = {
     aliases: ["l"],
     cooldown: 3,
     description: "Toggle music loop",
+    djMode: true,
     example: ["!loop"],
     group: "music",
     guildOnly: true,

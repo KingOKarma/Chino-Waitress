@@ -10,6 +10,7 @@ const youtube = new Youtube(CONFIG.music.youtubeAPIKey);
 export const command: Command = {
     cooldown: 5,
     description: "Search and select videos to play",
+    djMode: true,
     example: ["!search <Video Name>"],
     group: "music",
     guildOnly: true,

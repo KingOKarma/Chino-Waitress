@@ -6,6 +6,7 @@ export const command: Command = {
     aliases: ["s"],
     cooldown: 3,
     description: "Skip the currently playing song",
+    djMode: true,
     example: ["!skip"],
     group: "music",
     guildOnly: true,

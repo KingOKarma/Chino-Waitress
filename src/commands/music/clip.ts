@@ -8,6 +8,7 @@ import { rolePerms } from "../../globals";
 export const command: Command = {
     cooldown: 3,
     description: "Plays a clip sound",
+    djMode: true,
     example: ["!clip <name>"],
     group: "music",
     guildOnly: true,

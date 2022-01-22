@@ -15,6 +15,7 @@ export const command: Command = {
     aliases: ["pl"],
     cooldown: 5,
     description: "Play a playlist from youtube",
+    djMode: true,
     example: ["!playlist <Youtube Playlist URL | Playlist Name>"],
     group: "music",
     guildOnly: true,

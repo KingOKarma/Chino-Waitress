@@ -5,6 +5,7 @@ import Config from "../../config";
 export const command: Command = {
     cooldown: 5,
     description: "Toggle pruning of bot messages",
+    djMode: true,
     example: ["!pruning"],
     group: "music",
     guildOnly: true,

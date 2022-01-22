@@ -7,6 +7,7 @@ export const command: Command = {
     aliases: ["mv"],
     cooldown: 3,
     description: "Move songs around in the queue",
+    djMode: true,
     example: ["!move <Queue Number>"],
     group: "music",
     guildOnly: true,

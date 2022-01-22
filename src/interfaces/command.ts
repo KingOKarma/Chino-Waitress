@@ -18,6 +18,7 @@ export default interface Command {
     name: string;
     description: string;
     dmOnly?: boolean;
+    djMode?: boolean;
     guildOnly?: boolean;
     devonly?: boolean;
     example: string[];

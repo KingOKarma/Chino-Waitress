@@ -8,7 +8,7 @@ export const command: Command = {
     aliases: ["ly"],
     cooldown: 3,
     description: "Get lyrics for the currently playing song",
-    example: ["!loop"],
+    example: ["!lyrics"],
     group: "music",
     guildOnly: true,
     name: "lyrics",
