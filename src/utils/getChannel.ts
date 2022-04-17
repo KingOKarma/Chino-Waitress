@@ -20,9 +20,6 @@ export async function getChannel(cid: string | null, guild: Guild | null): Promi
     // Try recovering the role and report if it was successful or not.
     try {
         const channel = await guild.channels.fetch(cidParsed);
-        if (channel?.type === "GUILD_CATEGORY") return null;
-        if (channel?.type === "GUILD_STAGE_VOICE") return null;
-        if (channel?.type === "GUILD_VOICE") return null;
         return channel;
     } catch (e) {
         return null;

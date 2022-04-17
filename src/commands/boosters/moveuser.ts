@@ -17,7 +17,6 @@ export const command: Command = {
     guildOnly: true,
     name: "moveuser",
     permissionsBot: rolePerms,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     run: async ({ client, msg, args }) => {
 
         const [memberID] = args;
@@ -32,7 +31,7 @@ export const command: Command = {
 
         if (member.id === msg.author.id) return client.embedReply(msg, { embed: { description: "Why would you move yourself into your own vc?" } });
 
-        const boosterVC = STORAGE.boosterVcs.find((v) => v === member.voice.channelId);
+        const boosterVC = STORAGE.boosterVcs.find((v) => v === msg.member?.voice.channelId);
 
         if (boosterVC === undefined) {
             return client.embedReply(msg, { embed: { description: "Please make sure you are in one of the booster Voice Channels!" } });
