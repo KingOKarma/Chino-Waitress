@@ -21,12 +21,12 @@ export const command: Command = {
 
             if (role.mentionable) {
                 await role.setMentionable(false, "Staff set mentionable");
-                return await client.embedReply(msg, { embed: { description: `The \`${role.name}\` is **no longer** mentionable` } }).catch(console.error);
+                return await client.embedReply(msg, { embed: { description: `The \`${role.name}\` role is **no longer** mentionable` } }).catch(console.error);
             }
+
             await role.setMentionable(true, "Staff set mentionable");
 
-            return await client.embedReply(msg, { embed: { description: `The \`${role.name}\` is **now** mentionable` } }).catch(console.error);
-
+            return await client.embedReply(msg, { embed: { description: `The \`${role.name}\` role is **now** mentionable` } }).catch(console.error);
 
         } catch (err) {
             return await client.embedReply(msg, { embed: { description: "There was an error finding the rotd role, does it still exist?" } }).catch(console.error);
